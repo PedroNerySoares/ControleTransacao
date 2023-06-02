@@ -13,15 +13,19 @@ public class Usuario {
 	private String usuario;
 	private String email;
 	private String senha;
+	private String status;
 	
 	
 	public Usuario() {}
-	public Usuario(String usuario, String email,String senha) {
-		
+	
+	public Usuario(Long id, String usuario, String email, String senha, String status) {
+		this.id = id;
 		this.usuario = usuario;
 		this.email = email;
-		this.senha= senha;
+		this.senha = senha;
+		this.status = status;
 	}
+
 	public Long getId() {
 		return id;
 	}
@@ -45,6 +49,14 @@ public class Usuario {
 	}
 	public void setSenha(String senha) {
 		this.senha = senha;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 	

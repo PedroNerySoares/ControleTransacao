@@ -2,6 +2,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Http from '../../http';
 import { IUsuarios } from '../../Interfaces/IUsuarios';
+import { toast } from 'react-toastify';
 
 interface PropsModalExcluir {
     aberta: boolean
@@ -18,6 +19,7 @@ const ModalExcluir = ({ aberta, aoFechar, user }: PropsModalExcluir) => {
         Http.delete(`usuario/${user?.id}`)
             .then((resposta) => {
                 alert("Excluido com Sucesso!")
+                toast.success("Exluido com sucesso")
 
             })
             .catch((error) => {

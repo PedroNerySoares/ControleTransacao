@@ -4,6 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
 import Http from '../../http';
 import { IUsuarios } from '../../Interfaces/IUsuarios';
+import { toast } from 'react-toastify';
 interface PropsModalEditar {
     aberta: boolean
     aoFechar: () => void
@@ -18,6 +19,7 @@ export default function ModalEditar({ aberta, aoFechar, onClick, user }: PropsMo
 
     const [senhaAtual, setSenhaAtual] = useState('')
     const [senhaNova, setSenhaNova] = useState('')
+    
     function handleOnSubmit() {
         Http.put(`usuario/${user?.id}`, {
             "email": user?.email,
@@ -29,6 +31,13 @@ export default function ModalEditar({ aberta, aoFechar, onClick, user }: PropsMo
         .catch((error) => console.log(error))
     
     }
+
+
+
+
+
+
+
     return (
         <>
             <Modal show={aberta} onHide={aoFechar} >

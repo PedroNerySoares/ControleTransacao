@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ public class UsuarioController {
 	CriptografiaService crip = new CriptografiaService();
 
 	@PostMapping
-	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto) {
+	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto)
+			throws MessagingException {
 
 		// crip.ckeckPass(usuarioDto.getUsuario());
 
@@ -61,7 +63,12 @@ public class UsuarioController {
 
 	@GetMapping
 	private ResponseEntity<List<Usuario>> listarUsuarios() {
-		List<Usuario> lista = usuarioRepository.findAll();
+		List<Usuario> lista = usuarioRepository.findAll()
+												.stream()
+												.filter(usuario->!usuario.getUsuario().equals("Admin") &&
+													 	usuario.getStatus().equals("S"))
+												.toList();
+
 		return ResponseEntity.status(200).body(lista);
 	}
 

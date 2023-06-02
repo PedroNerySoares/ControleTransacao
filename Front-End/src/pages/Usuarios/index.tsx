@@ -6,6 +6,7 @@ import ModalCadastrar from '../../components/ModalCadastrar';
 import ModalEditar from '../../components/ModalEditar';
 import ModalExcluir from '../../components/ModalExlcuir';
 import Http from '../../http';
+import { ToastContainer } from "react-toastify";
 
 
 
@@ -20,7 +21,7 @@ function Usuario() {
         Http.get<IUsuarios[]>('usuario')
             .then(resposta => setUsuarios(resposta.data))
             .catch(error => console.log(error))
-    }, [])
+    }, [modalExcluirAberta])
 
     const handleExluirshow = (usuario: IUsuarios) => {
 
@@ -37,6 +38,8 @@ function Usuario() {
     return (
 
         <>
+            <ToastContainer/>
+            
             <h2>Usuários Cadastrados</h2>
             <Button variant="primary" onClick={() => { setModalCadastrarAberta(true) }}>Cadastrar</Button>
             <Table striped bordered hover size="sm" >
