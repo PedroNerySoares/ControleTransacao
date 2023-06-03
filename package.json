@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "papaparse": "^5.4.1"
+    "papaparse": "^5.4.1",
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@types/papaparse": "^5.3.7"

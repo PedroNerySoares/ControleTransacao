@@ -64,7 +64,7 @@ public class TransacaoController {
 
 	@GetMapping("/suspeita/{anoMes}")
 	private List<Transacao> ListarTransacaoSuspeita(@PathVariable String anoMes) {
-		return transacaoRepository.listaTransacaoSuspeita(1500.00, anoMes);
+		return transacaoRepository.listaTransacaoSuspeita(100000.00, anoMes);
 
 	}
 
@@ -78,13 +78,14 @@ public class TransacaoController {
 		tmpSql = "SELECT 'Saida', bancoOrigem,agenciaOrigem,contaOrigem,sum(valorTransacao) as total " +
 				"FROM transacao  where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoOrigem,agenciaOrigem,contaOrigem,dataHoraTransacao  " +
-				"HAVING  total >=100 " +
+				"HAVING  total >=1000000.00 " +
 				"UNION " +
 				"SELECT 'Entrada',bancoDestino,agenciaDestino,contaDestino,sum(valorTransacao) as total " +
 				"FROM transacao where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
-				"GROUP BY bancoDestino,agenciaDestino,contaDestino HAVING  total >=100 ";
+				"GROUP BY bancoDestino,agenciaDestino,contaDestino HAVING  total >=1000000.00 ";
 
 		stm.executeQuery(tmpSql);
+		System.out.println(tmpSql);
 		ResultSet rst = stm.getResultSet();
 		while (rst.next()) {
 			listaContaSuspeita.add(new ContasSuspeitasDto(rst.getString(2),
@@ -109,12 +110,12 @@ public class TransacaoController {
 		tmpSql = "SELECT 'Saida', bancoOrigem,agenciaOrigem,sum(valorTransacao) as total " +
 				"FROM transacao  where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoOrigem,agenciaOrigem,dataHoraTransacao  " +
-				"HAVING  total >=100 " +
+				"HAVING  total >=1000000000.00 " +
 				"UNION " +
 				"SELECT 'Entrada',bancoDestino,agenciaDestino,sum(valorTransacao) as total " +
 				"FROM transacao where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoDestino,agenciaDestino " +
-				"HAVING  total >=100 ";
+				"HAVING  total >=1000000000.00 ";
 
 		System.out.println(tmpSql);
 		stm.executeQuery(tmpSql);

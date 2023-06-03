@@ -38,8 +38,8 @@ function Usuario() {
     return (
 
         <>
-            <ToastContainer/>
-            
+            <ToastContainer />
+
             <h2>Usuários Cadastrados</h2>
             <Button variant="primary" onClick={() => { setModalCadastrarAberta(true) }}>Cadastrar</Button>
             <Table striped bordered hover size="sm" >
@@ -47,8 +47,8 @@ function Usuario() {
                     <tr id='0'>
                         <th>#</th>
                         <th>Nome do Usuário</th>
-                        <th>Email</th>
-                        <th>Opções</th>
+                        <th >Email</th>
+                        <th className="col-sm-2">Opções</th>
                     </tr>
                 </thead>
                 <tbody >
@@ -58,7 +58,7 @@ function Usuario() {
                                 <th>{index + 1}</th>
                                 <th>{usuario.usuario}</th>
                                 <th>{usuario.email}</th>
-                                <th><Button variant="danger"
+                                <th ><Button variant="danger"
 
                                     onClick={() => { handleExluirshow(usuario) }}
                                     value={usuario.id}

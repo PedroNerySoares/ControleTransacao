@@ -9,7 +9,7 @@ interface PropsData{
 export default function GridTransacao({data}:PropsData){
 
     return(
-        <Table  >
+        <Table  className="table table-bordered">
                 <thead>
                     <tr>
                         <td className="tg-c3ow" colSpan={3}>Origem</td>

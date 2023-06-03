@@ -65,8 +65,8 @@ public class UsuarioController {
 	private ResponseEntity<List<Usuario>> listarUsuarios() {
 		List<Usuario> lista = usuarioRepository.findAll()
 												.stream()
-												.filter(usuario->!usuario.getUsuario().equals("Admin") &&
-													 	usuario.getStatus().equals("S"))
+												.filter(usuario->!usuario.getUsuario().equals("Admin") && 
+														usuario.getStatus().equals("S"))
 												.toList();
 
 		return ResponseEntity.status(200).body(lista);
@@ -76,7 +76,8 @@ public class UsuarioController {
 	private ResponseEntity<Optional<Usuario>> deletarUsuario(@PathVariable Long id) {
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		if (usuario.isPresent()) {
-			usuarioRepository.deleteById(id);
+			usuario.get().setStatus("N");
+			usuarioRepository.saveAndFlush(usuario.get());
 			return ResponseEntity.status(200).build();
 		}
 

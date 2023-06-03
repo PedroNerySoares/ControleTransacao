@@ -18,12 +18,13 @@ public class Usuario {
 	
 	public Usuario() {}
 	
-	public Usuario(Long id, String usuario, String email, String senha, String status) {
-		this.id = id;
+	public Usuario(String usuario, String email, String senha) {
+	
 		this.usuario = usuario;
 		this.email = email;
 		this.senha = senha;
-		this.status = status;
+		this.status ="S";
+	
 	}
 
 	public Long getId() {

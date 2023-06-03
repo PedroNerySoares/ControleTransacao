@@ -14,7 +14,8 @@ public class UsuarioDto {
 
 	private String status;
 
-	public UsuarioDto(){}
+	public UsuarioDto() {
+	}
 
 	public UsuarioDto(Long id, @NotBlank(message = "Nome de usuário obriatório!") String usuario,
 			@NotBlank(message = "e-mail do usuário obriatório!") String email, String status) {
@@ -55,8 +56,5 @@ public class UsuarioDto {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
-	
-	
+
 }

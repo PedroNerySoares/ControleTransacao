@@ -8,7 +8,7 @@ interface PropsData{
 
 export default function GridContaAgencia({data}:PropsData) {
     return (
-        <Table>
+        <Table className="table table-bordered">
             <thead>
                 <tr>
                     <td  className="tg-0pky">Banco</td>

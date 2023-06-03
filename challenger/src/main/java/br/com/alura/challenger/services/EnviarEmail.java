@@ -19,6 +19,8 @@ public class EnviarEmail {
 	private JavaMailSender mailSender;
 
 	public void enviar(String usuario, String destinatario, String password) throws MessagingException {
+		
+		
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -78,7 +80,14 @@ public class EnviarEmail {
 				"            </td>\n" +
 				"        </tr>\n" +
 				"    </tbody></table>";
-	}
 
+
+				helper.setTo(destinatario);
+				helper.setSubject(assunto);
+				helper.setText(html, true);
+
+				mailSender.send(message);
+				
+	}
 
 }

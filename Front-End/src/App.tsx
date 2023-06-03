@@ -1,9 +1,10 @@
 
 import { BrowserRouter as Router } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 import MainRoutes from './Routes';
 import NavBar from "./components/NavBar";
-import "react-toastify/dist/ReactToastify.css"; import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-bootstrap";
+import './index.css'
+
 
 function App() {
 
@@ -13,10 +14,11 @@ function App() {
 
     <Router>
 
-      <NavBar />
-   
-      <MainRoutes />
 
+      <NavBar />
+      <main>
+        <MainRoutes />
+      </main>
 
     </Router>
 
