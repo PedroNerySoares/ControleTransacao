@@ -1,5 +1,6 @@
 package br.com.alura.challenger.controller;
 
+import javax.management.RuntimeErrorException;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +20,26 @@ import br.com.alura.challenger.services.TokenService;
 @RequestMapping("/login")
 @Controller
 public class LoginController {
-    
 
 	@Autowired
 	private AuthenticationManager manager;
 	@Autowired
 	private TokenService tokenService;
 
-    @PostMapping
-	private ResponseEntity<dadosTokenJWT> LoginUsuario(@Valid @RequestBody br.com.alura.challenger.dto.autenticacaoDTO autenticacaoDTO){
-		var authenticationToken = new UsernamePasswordAuthenticationToken(autenticacaoDTO.getUsuario(), autenticacaoDTO.getSenha());
-		var authentication = manager.authenticate(authenticationToken);
-		var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
-		return ResponseEntity.ok(new dadosTokenJWT(tokenJWT));
+	@PostMapping
+	private ResponseEntity<dadosTokenJWT> LoginUsuario(
+			@Valid @RequestBody br.com.alura.challenger.dto.autenticacaoDTO autenticacaoDTO) {
 
-	
+		try {
+			var authenticationToken = new UsernamePasswordAuthenticationToken(autenticacaoDTO.getUsuario(),
+					autenticacaoDTO.getSenha());
+			var authentication = manager.authenticate(authenticationToken);
+			var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
+			return ResponseEntity.ok(new dadosTokenJWT(tokenJWT));
+
+		} catch (Exception e) {
+			throw new RuntimeException( "Login ou senha invalida");
+		}
+
 	}
 }
