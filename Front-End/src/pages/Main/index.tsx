@@ -1,21 +1,39 @@
 import { useState } from 'react'
 import './styles.css'
 import Http from '../../http'
+import { eventManager } from 'react-toastify/dist/core'
 export default function Main() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-  const headers= {"Access-Control-Allow-Origin": "*"}
-    const handleSubmit = (e:Event) => {
-        e.preventDefault();
-        console.log("submit",{email,password})
 
-        Http.post("login",{email,password},{headers})
+    const handleSubmit = (e: Event) => {
+        e.preventDefault();
+        // console.log("submit", { email, password })
+
+        Http.post("login", {
+            "usuario": email,
+            "senha": password
+
+        }).then(response => (
+
+            localStorage.setItem('token', response.data.token)
+        ))
     }
 
+    const handleExit = () => {
+      
+        localStorage.removeItem('token');
+
+    }
+
+    handleExit();
+
     return (
+
         <div id="login">
+
             <h1>Login do Sistema</h1>
-            <form className="form" onSubmit={(e)=>{handleSubmit(e.nativeEvent)}}>
+            <form className="form" onSubmit={(e) => { handleSubmit(e.nativeEvent) }}>
                 <div className="field">
                     <label htmlFor="email">email</label>
                     <input type="text"

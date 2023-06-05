@@ -10,7 +10,7 @@ function NavBar() {
         <Nav.Link href="/importacao">Importação</Nav.Link>
         <Nav.Link href="/usuarios">Usuários</Nav.Link>
         <Nav.Link href="/suspeita">Transações suspeitas</Nav.Link>
-        <Nav.Link href="">Sair</Nav.Link>
+        <Nav.Link href="/">Sair</Nav.Link>
         
         <Nav.Link href='/DetalheImportacao' disabled></Nav.Link>
       </Nav>

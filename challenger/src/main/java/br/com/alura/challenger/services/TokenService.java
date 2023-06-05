@@ -11,6 +11,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 
 import br.com.alura.challenger.model.Usuario;
 
@@ -37,8 +38,25 @@ public class TokenService {
 
     }
 
+    public String getSubejectId(String tokenJWT) {
+
+        try {
+            var algoritmo = Algorithm.HMAC256(secret);
+            return JWT.require(algoritmo)
+                    .withIssuer("API transacao")
+                    .build()
+                    .verify(tokenJWT)
+                    .getClaim("id").toString();
+            
+
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Token JWT não informado ou inválido");
+
+        }
+
+    }
     public String getSubeject(String tokenJWT) {
-        System.out.println(tokenJWT);
+  
         try {
             var algoritmo = Algorithm.HMAC256(secret);
             return JWT.require(algoritmo)
@@ -57,5 +75,7 @@ public class TokenService {
     private Instant dataExpiraxao() {
         return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
     }
+
+    
 
 }

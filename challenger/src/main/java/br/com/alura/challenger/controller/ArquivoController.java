@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
+import javax.servlet.http.HttpServletRequest;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.alura.challenger.config.SecurityFilter;
 import br.com.alura.challenger.config.jdbcConfig;
 import br.com.alura.challenger.dto.DetalheDto;
 import br.com.alura.challenger.dto.listaArquivoDto;
@@ -33,8 +34,8 @@ import br.com.alura.challenger.model.Transacao;
 import br.com.alura.challenger.model.Usuario;
 import br.com.alura.challenger.repositories.ArquivoRepository;
 import br.com.alura.challenger.repositories.UsuarioRepository;
+import br.com.alura.challenger.services.TokenService;
 import br.com.alura.challenger.services.TransacaoServices;
-
 
 @RestController
 @RequestMapping("/arquivo")
@@ -48,6 +49,12 @@ public class ArquivoController {
 
 	@Autowired
 	private TransacaoServices transacao;
+
+	@Autowired
+	private TokenService tokenService;
+
+	@Autowired
+	private SecurityFilter securityFilter; 
 
 	ModelMapper modelMapper = new ModelMapper();
 
@@ -74,11 +81,13 @@ public class ArquivoController {
 	}
 
 	@PostMapping
-	private ResponseEntity GravarAquivo(  @RequestBody   @Validated List<Transacao> lista) {
+	private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated List<Transacao> lista) {
 
-		Usuario usuario = usuarioRepository.getById(1L);
+		Long idUser =(long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request))) ;
+		System.out.println(idUser);
+		Usuario usuario = usuarioRepository.getById(idUser);
+		// Usuario usuario = usuarioRepository.getById((long) idUser);
 
-		System.out.println(lista.get(0).getBancoOrigem().isBlank());
 		Arquivo arq = new Arquivo("teste",
 				usuario,
 				LocalDateTime.now(),
