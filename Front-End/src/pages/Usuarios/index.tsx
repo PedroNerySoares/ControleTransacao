@@ -16,9 +16,14 @@ function Usuario() {
     const [modalCadastrarAberta, setModalCadastrarAberta] = useState(false)
     const [usuario, setUsuario] = useState<IUsuarios>()
     const [usuarios, setUsuarios] = useState<IUsuarios[]>([])
-
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTT0tPVklBIiwiaXNzIjoiQVBJIHRyYW5zYWNhbyIsImlkIjo4LCJleHAiOjE2ODU5MzQ2NDd9.VcWFrQEbYnebtK_8Q-Vmb0WqO2R13rWhXcaS0wQeCzw',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
+    };
     useEffect(() => {
-        Http.get<IUsuarios[]>('usuario')
+        Http.get<IUsuarios[]>('usuario',{headers})
             .then(resposta => setUsuarios(resposta.data))
             .catch(error => console.log(error))
     }, [modalExcluirAberta])

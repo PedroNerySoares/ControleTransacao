@@ -1,6 +1,5 @@
 package br.com.alura.challenger.controller;
 
-import java.io.Console;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -10,7 +9,6 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.alura.challenger.dto.AlterarUsuarioDto;
 import br.com.alura.challenger.dto.UsuarioDto;
@@ -26,11 +25,11 @@ import br.com.alura.challenger.model.Usuario;
 import br.com.alura.challenger.repositories.UsuarioRepository;
 import br.com.alura.challenger.services.CriptografiaService;
 import br.com.alura.challenger.services.EnviarEmail;
-import net.bytebuddy.asm.Advice.Return;
 
 @RequestMapping("/usuario")
 @Controller
-public class UsuarioController {
+public class UsuarioController  {
+
 
 	@Autowired
 	UsuarioRepository usuarioRepository;
@@ -40,34 +39,38 @@ public class UsuarioController {
 
 	CriptografiaService crip = new CriptografiaService();
 
-	@PostMapping
-	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto)
-			throws MessagingException {
 
-		// crip.ckeckPass(usuarioDto.getUsuario());
+	@PostMapping
+	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,UriComponentsBuilder uriBuilder)
+			throws MessagingException {
 
 		Random aleatorio = new Random();
 		int valor = aleatorio.nextInt(999999) + 1;
 		String password = Integer.toString(valor);
-
 		String senhaCriptografada = crip.gerarHash(password);
 
-		System.out.println(password);
-		System.out.println(senhaCriptografada);
-
-		Usuario us1 = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada);
-		usuarioRepository.saveAndFlush(us1);
+		Usuario novoUsuario = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada,"S");
+		usuarioRepository.saveAndFlush(novoUsuario);
+		
+		var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();		
+		
 		enviar.enviar(usuarioDto.getUsuario(), usuarioDto.getEmail(), password);
-		return ResponseEntity.status(201).build();
+
+		// return ResponseEntity.status(201).build();
+		return ResponseEntity.created(uri).build();
 	}
+
+
+	
+
 
 	@GetMapping
 	private ResponseEntity<List<Usuario>> listarUsuarios() {
 		List<Usuario> lista = usuarioRepository.findAll()
-												.stream()
-												.filter(usuario->!usuario.getUsuario().equals("Admin") && 
-														usuario.getStatus().equals("S"))
-												.toList();
+				.stream()
+				.filter(usuario -> !usuario.getUsuario().equals("Admin") &&
+						usuario.getStatus().equals("S"))
+				.toList();
 
 		return ResponseEntity.status(200).body(lista);
 	}
@@ -78,7 +81,7 @@ public class UsuarioController {
 		if (usuario.isPresent()) {
 			usuario.get().setStatus("N");
 			usuarioRepository.saveAndFlush(usuario.get());
-			return ResponseEntity.status(200).build();
+			return ResponseEntity.noContent().build();
 		}
 
 		return null;
@@ -103,9 +106,10 @@ public class UsuarioController {
 			}
 
 		}
-		System.out.println("não encontrado");
-		return ResponseEntity.status(404).body(null);
+		return ResponseEntity.status(404).build();
 
 	}
+
+	
 
 }

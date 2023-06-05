@@ -26,14 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.alura.challenger.config.jdbcConfig;
-import br.com.alura.challenger.dto.ArquivoImportar;
 import br.com.alura.challenger.dto.DetalheDto;
 import br.com.alura.challenger.dto.listaArquivoDto;
 import br.com.alura.challenger.model.Arquivo;
 import br.com.alura.challenger.model.Transacao;
 import br.com.alura.challenger.model.Usuario;
 import br.com.alura.challenger.repositories.ArquivoRepository;
-import br.com.alura.challenger.repositories.TransacaoRepository;
 import br.com.alura.challenger.repositories.UsuarioRepository;
 import br.com.alura.challenger.services.TransacaoServices;
 
@@ -80,7 +78,6 @@ public class ArquivoController {
 
 		Usuario usuario = usuarioRepository.getById(1L);
 
-		System.out.println(" hara trans: " + lista.get(0).getDataHoraTransacao());
 		System.out.println(lista.get(0).getBancoOrigem().isBlank());
 		Arquivo arq = new Arquivo("teste",
 				usuario,
