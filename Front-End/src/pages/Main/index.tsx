@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './styles.css'
 import Http from '../../http'
-import { eventManager } from 'react-toastify/dist/core'
+
 export default function Main() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const navigate = useNavigate();
 
     const handleSubmit = (e: Event) => {
         e.preventDefault();
@@ -16,12 +18,14 @@ export default function Main() {
 
         }).then(response => (
 
-            localStorage.setItem('token', response.data.token)
-        ))
+
+            localStorage.setItem('token', response.data.token),
+            navigate("/importacao")
+            ))
     }
 
     const handleExit = () => {
-      
+
         localStorage.removeItem('token');
 
     }

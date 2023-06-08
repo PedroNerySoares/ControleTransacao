@@ -13,7 +13,7 @@ export default function MainRoutes(){
         
        <Routes>
 
-            <Route path='/' element={<Main />}></Route>
+            <Route path='/' element={<Main />} ></Route>
             <Route path='/usuarios' element={<Usuario />}></Route>
             <Route path='/importacao' element={<Importacao />}></Route>
             <Route path='/suspeita' element={<Suspeita />}></Route>

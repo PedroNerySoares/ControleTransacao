@@ -1,2 +1,2 @@
-ALTER TABLE `challenger`.`usuario` 
+ALTER TABLE `usuario` 
 ADD COLUMN `status` ENUM('S', 'N') NULL DEFAULT 'S' AFTER `senha`;

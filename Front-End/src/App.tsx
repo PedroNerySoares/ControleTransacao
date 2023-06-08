@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import MainRoutes from './Routes';
 import NavBar from "./components/NavBar";
 import './index.css'
+import { useState } from "react";
 
 
 function App() {
@@ -13,10 +14,9 @@ function App() {
   return (
 
     <Router>
-
-
-      <NavBar />
+      <NavBar/>
       <main>
+        
         <MainRoutes />
       </main>
 

@@ -21,7 +21,7 @@ CREATE TABLE transacao (
   PRIMARY KEY (ID));
 
   
-  CREATE TABLE `challenger`.`usuario` (
+  CREATE TABLE `usuario` (
   `id` INT NOT NULL  AUTO_INCREMENT,
   `usuario` VARCHAR(45) NULL,
   `email` VARCHAR(45) NULL,
