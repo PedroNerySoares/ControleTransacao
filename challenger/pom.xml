@@ -102,6 +102,14 @@
 			<version>4.2.1</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.azure/azure-core -->
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-core</artifactId>
+			<version>1.39.0</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
