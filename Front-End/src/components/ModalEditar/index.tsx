@@ -21,6 +21,7 @@ export default function ModalEditar({ aberta, aoFechar, onClick, user }: PropsMo
     const [senhaNova, setSenhaNova] = useState('')
     
     function handleOnSubmit() {
+     
         Http.put(`usuario/${user?.id}`, {
             "email": user?.email,
             "antigaSenha": senhaAtual,

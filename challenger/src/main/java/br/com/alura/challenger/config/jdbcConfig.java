@@ -9,39 +9,17 @@ import java.sql.SQLException;
 public class jdbcConfig {
 	
 	public Connection createConnection() throws SQLException{
+
+		String url_conexao = System.getenv("BD-URL") ;
+
+		String url_user=System.getenv("BD-USER");
+
+		String url_password  =System.getenv("BD-PASSWORD");
 		
 		Connection conexao = null;
-		return DriverManager.getConnection("jdbc:mysql://localhost:3306/challenger",
-											  "root",
-											"@Familia98");
-		
-		
-		
-	}
-	
-	
-	
 
-//	DriverManagerDataSource dataSource = new DriverManagerDataSource("jdbc:mysql://localhost:3306/challenger","root","@Familia98");
-//	JdbcTemplate jdbc = new JdbcTemplate((Connection) dataSource);
-// 
-	//	
-//	
-//	
-//	@Bean
-//	public JdbcTemplate jdbcTemplate( DataSource dataSource) {
-//		return new JdbcTemplate((Connection) dataSource);
-//	}
-//	
-//	@Bean
-//	public DataSource dataSource() { 
-//	    return (DataSource) new EmbeddedDatabaseBuilder()
-//	    		.generateUniqueName(true)
-//	    		.setType(EmbeddedDatabaseType.H2)
-//	    		.setScriptEncoding("UTF-8")
-//	    		.addScript("bd/script.sql")
-//	    		.build();
-//	    
-//	}
+		return DriverManager.getConnection(url_conexao,url_user,url_password);
 
-}
+		
+		
+	}}
