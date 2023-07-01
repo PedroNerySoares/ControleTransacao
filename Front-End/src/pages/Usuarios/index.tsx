@@ -3,6 +3,9 @@ import { Button } from 'react-bootstrap';
 import Table from "react-bootstrap/esm/Table";
 import ReactLoading from "react-loading";
 import { IUsuarios } from '../../Interfaces/IUsuarios';
+import ModalCadastrar from "../../components/ModalCadastrar";
+import ModalEditar from "../../components/ModalEditar";
+import ModalExcluir from "../../components/ModalExlcuir";
 import Http from '../../http';
 
 
@@ -37,8 +40,8 @@ function Usuario() {
     return (
         <>
             {isLoading ? (
-                    <ReactLoading type="spin" color="black" />
-               
+                <ReactLoading type="spin" color="black" />
+
             )
                 :
                 (
@@ -63,11 +66,13 @@ function Usuario() {
                                                 <th>{index + 1}</th>
                                                 <th>{usuario.usuario}</th>
                                                 <th>{usuario.email}</th>
-                                                <th ><Button variant="danger"
+                                                <th >
+                                                    <Button variant="danger"
 
-                                                    onClick={() => { handleExluirshow(usuario) }}
-                                                    value={usuario.id}
-                                                > Excluir</Button>
+                                                        onClick={() => { handleExluirshow(usuario) }}
+                                                        value={usuario.id}>
+                                                        Excluir
+                                                    </Button>
                                                     <Button variant="primary"
                                                         onClick={() => { handleEditarshow(usuario) }}
                                                         value={usuario.id}
@@ -79,6 +84,22 @@ function Usuario() {
                             </tbody>
 
                         </Table>
+                        <ModalCadastrar
+                            aberta={modalCadastrarAberta}
+                            aoFechar={() => (setModalCadastrarAberta(false))}
+
+                        />
+                        <ModalEditar
+                            aberta={modalEditarAberta}
+                            aoFechar={() => setModalEditarAberta(false)}
+                            user={usuario}
+
+                        />
+                        <ModalExcluir
+                            aberta={modalExcluirAberta}
+                            aoFechar={() => setModalExcluirAberta(false)}
+                            user={usuario}
+                        />
                     </>)}
 
         </>

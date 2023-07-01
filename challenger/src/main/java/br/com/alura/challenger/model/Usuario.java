@@ -22,8 +22,6 @@ public class Usuario implements UserDetails {
 	private String email;
 	private String senha;
 	private String status;
-	// @Column(name="status")
-	// private boolean accountNonLocked;
 
 	public Usuario() {
 	}
@@ -76,14 +74,6 @@ public class Usuario implements UserDetails {
 		this.status = status;
 	}
 
-	// public boolean isAccountNonLocked() {
-	// 	return accountNonLocked;
-	// }
-
-	// public void setAccountNonLocked(boolean accountNonLocked) {
-	// 	this.accountNonLocked = accountNonLocked;
-	// }
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
@@ -111,14 +101,19 @@ public class Usuario implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		
+		if (this.getStatus().equals("S")) {
+			return true;
+
+		} else {
+			return false;
+		}
+
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
-
-
 
 }

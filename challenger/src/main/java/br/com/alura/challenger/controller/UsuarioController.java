@@ -66,11 +66,11 @@ public class UsuarioController  {
 
 	@GetMapping
 	private ResponseEntity<List<Usuario>> listarUsuarios() {
-		List<Usuario> lista = usuarioRepository.findAll();
-				// .stream()
-				// .filter(usuario -> !usuario.getUsuario().equals("Admin") &&
-				// 		usuario.getStatus().equals("S"))
-				// .toList();
+		List<Usuario> lista = usuarioRepository.findAll()
+				.stream()
+				.filter(usuario -> !usuario.getUsuario().equals("Admin") &&
+						usuario.isEnabled())
+				.toList();
 
 		return ResponseEntity.status(200).body(lista);
 	}

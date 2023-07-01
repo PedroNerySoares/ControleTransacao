@@ -38,7 +38,7 @@ public class LoginController {
 			return ResponseEntity.ok(new dadosTokenJWT(tokenJWT));
 
 		} catch (Exception e) {
-			throw new RuntimeException( "Login ou senha invalida");
+			throw new RuntimeException("Login ou senha invalida");
 		}
 
 	}

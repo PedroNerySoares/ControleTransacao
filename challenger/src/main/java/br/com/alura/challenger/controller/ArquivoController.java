@@ -1,5 +1,9 @@
 package br.com.alura.challenger.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,6 +28,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import br.com.alura.challenger.config.SecurityFilter;
 import br.com.alura.challenger.config.jdbcConfig;
@@ -54,7 +61,7 @@ public class ArquivoController {
 	private TokenService tokenService;
 
 	@Autowired
-	private SecurityFilter securityFilter; 
+	private SecurityFilter securityFilter;
 
 	ModelMapper modelMapper = new ModelMapper();
 
@@ -83,19 +90,17 @@ public class ArquivoController {
 	@PostMapping
 	private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated List<Transacao> lista) {
 
-		Long idUser =(long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request))) ;
-		System.out.println(idUser);
+		Long idUser = (long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request)));
 		Usuario usuario = usuarioRepository.getById(idUser);
-		// Usuario usuario = usuarioRepository.getById((long) idUser);
 
 		Arquivo arq = new Arquivo("teste",
 				usuario,
 				LocalDateTime.now(),
 				lista.get(0).getDataHoraTransacao().toLocalDate(),
 				lista);
-		// System.out.println(arq.getListaTransacao().get(0).getValorTransacao());
 
 		arquivoRepository.save(arq);
+
 		return ResponseEntity.status(200).body(null);
 	}
 
