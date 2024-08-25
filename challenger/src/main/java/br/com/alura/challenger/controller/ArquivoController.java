@@ -29,15 +29,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 import br.com.alura.challenger.config.SecurityFilter;
 import br.com.alura.challenger.config.jdbcConfig;
 import br.com.alura.challenger.dto.DetalheDto;
+import br.com.alura.challenger.dto.TesteDto;
 import br.com.alura.challenger.dto.listaArquivoDto;
 import br.com.alura.challenger.model.Arquivo;
-import br.com.alura.challenger.model.Transacao;
 import br.com.alura.challenger.model.Usuario;
 import br.com.alura.challenger.repositories.ArquivoRepository;
 import br.com.alura.challenger.repositories.UsuarioRepository;
@@ -88,16 +86,18 @@ public class ArquivoController {
 	}
 
 	@PostMapping
-	private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated List<Transacao> lista) {
+	private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated TesteDto teste) {
 
 		Long idUser = (long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request)));
 		Usuario usuario = usuarioRepository.getById(idUser);
 
-		Arquivo arq = new Arquivo("teste",
+		Arquivo arq = new Arquivo(
+				teste.getNomeArquivo(),
+				teste.getTamanhoArquivo(),
 				usuario,
 				LocalDateTime.now(),
-				lista.get(0).getDataHoraTransacao().toLocalDate(),
-				lista);
+				teste.getListaTransacao().get(0).getDataHoraTransacao().toLocalDate(),
+				teste.getListaTransacao());
 
 		arquivoRepository.save(arq);
 

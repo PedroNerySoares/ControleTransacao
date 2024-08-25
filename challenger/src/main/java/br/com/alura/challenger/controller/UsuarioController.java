@@ -25,11 +25,11 @@ import br.com.alura.challenger.model.Usuario;
 import br.com.alura.challenger.repositories.UsuarioRepository;
 import br.com.alura.challenger.services.CriptografiaService;
 import br.com.alura.challenger.services.EnviarEmail;
+import br.com.alura.challenger.services.GerarSenhaAleatoriaService;
 
 @RequestMapping("/usuario")
 @Controller
-public class UsuarioController  {
-
+public class UsuarioController {
 
 	@Autowired
 	UsuarioRepository usuarioRepository;
@@ -39,30 +39,29 @@ public class UsuarioController  {
 
 	CriptografiaService crip = new CriptografiaService();
 
-
+	
+	@Autowired
+	private GerarSenhaAleatoriaService geraSenhaAleatoria;
+	
 	@PostMapping
-	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,UriComponentsBuilder uriBuilder)
+	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,
+			UriComponentsBuilder uriBuilder)
 			throws MessagingException {
 
-		Random aleatorio = new Random();
-		int valor = aleatorio.nextInt(999999) + 1;
-		String password = Integer.toString(valor);
+		String password = Integer.toString(geraSenhaAleatoria.geraSenha());
 		String senhaCriptografada = crip.gerarHash(password);
 
-		Usuario novoUsuario = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada,"S");
-		usuarioRepository.saveAndFlush(novoUsuario);
-		
-		var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();		
-		
-		enviar.enviar(usuarioDto.getUsuario(), usuarioDto.getEmail(), password);
+		Usuario novoUsuario = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada, "S");
+		boolean enviou = enviar.enviar(usuarioDto.getUsuario(), usuarioDto.getEmail(), password);
+		if (enviou) {
+			usuarioRepository.saveAndFlush(novoUsuario);
+			var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();
+			return ResponseEntity.created(uri).build();
+		} else {
+			return ResponseEntity.badRequest().body(null);
+		}
 
-		// return ResponseEntity.status(201).build();
-		return ResponseEntity.created(uri).build();
 	}
-
-
-	
-
 
 	@GetMapping
 	private ResponseEntity<List<Usuario>> listarUsuarios() {
@@ -109,7 +108,5 @@ public class UsuarioController  {
 		return ResponseEntity.status(404).build();
 
 	}
-
-	
 
 }

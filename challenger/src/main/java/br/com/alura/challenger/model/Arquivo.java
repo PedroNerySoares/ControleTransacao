@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -47,15 +48,12 @@ public class Arquivo {
 	@OneToMany(cascade = CascadeType.ALL)
 	@JoinColumn(name =  "arquivo_idarq")
 	private List<Transacao> listaTransacao = new ArrayList<Transacao>();
-	
-	
-	
-	
-	
+
 
 	public Arquivo(){}
-	public Arquivo(String nomeArquivo, Usuario usuario,LocalDateTime  dataImportacao ,LocalDate dataTransacao,List<Transacao> listaTransacao) {
+	public Arquivo(String nomeArquivo,Double tamanho, Usuario usuario,LocalDateTime  dataImportacao ,LocalDate dataTransacao,List<Transacao> listaTransacao) {
 		this.nomeArquivo = nomeArquivo;
+		this.tamanho = tamanho;
 		this.usuario = usuario;
 		this.dataImportacao=dataImportacao;
 		this.dataTransacao = dataTransacao;

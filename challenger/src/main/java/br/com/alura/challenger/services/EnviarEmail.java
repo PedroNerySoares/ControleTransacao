@@ -18,9 +18,8 @@ public class EnviarEmail {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	public void enviar(String usuario, String destinatario, String password) throws MessagingException {
-		
-		
+	public boolean enviar(String usuario, String destinatario, String password) throws MessagingException {
+
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -37,7 +36,10 @@ public class EnviarEmail {
 				"                        <td colspan=\"3\" height=\"60\" bgcolor=\"#ffffff\" style=\"border-bottom:1px solid #eeeeee;padding-left:16px\" align=\"left\">\n"
 				+
 				"                            \n" +
-				// "                                <img src=\"https://ci3.googleusercontent.com/proxy/1mmLbbt_GO9TvI1V6pu5Q1xaFgI6zjQKB9rVibpuNqY4a5ZJDS8JAirx6hGKckbxdY9--NCpdHIGzQW7tqMDH49gI9V7em_m1TSL=s0-d-e1-ft#https://cloud.mongodb.com/static/images/logo-mongodb.png\" width=\"140\" height=\"35\" style=\"display:block;width:140px;height:35px\" class=\"CToWUd\" data-bit=\"iit\">\n"
+				// " <img
+				// src=\"https://ci3.googleusercontent.com/proxy/1mmLbbt_GO9TvI1V6pu5Q1xaFgI6zjQKB9rVibpuNqY4a5ZJDS8JAirx6hGKckbxdY9--NCpdHIGzQW7tqMDH49gI9V7em_m1TSL=s0-d-e1-ft#https://cloud.mongodb.com/static/images/logo-mongodb.png\"
+				// width=\"140\" height=\"35\" style=\"display:block;width:140px;height:35px\"
+				// class=\"CToWUd\" data-bit=\"iit\">\n"
 				// +
 				"                            \n" +
 				"                        </td>\n" +
@@ -54,9 +56,9 @@ public class EnviarEmail {
 				"Segue abaixo suas credenciais para acessar o sistema.<br><br>\n" +
 				"\n" +
 				"<table>\n" +
-				"    <tbody><tr><td>Email de login:</td><td>"+destinatario + "</td></tr>\n" +
-				"	 <tr><td>Senha para acesso:</td><td>"+password + "</td></tr>\n" +
-				"    <tr><td>Criado em:</td><td>"+LocalDate.now() + "</td></tr>\n" +
+				"    <tbody><tr><td>Email de login:</td><td>" + destinatario + "</td></tr>\n" +
+				"	 <tr><td>Senha para acesso:</td><td>" + password + "</td></tr>\n" +
+				"    <tr><td>Criado em:</td><td>" + LocalDate.now() + "</td></tr>\n" +
 				"</tbody></table>\n" +
 				"</td></tr>\n" +
 				"                                <tr><td colspan=\"3\" height=\"20\"></td></tr>\n" +
@@ -81,13 +83,16 @@ public class EnviarEmail {
 				"        </tr>\n" +
 				"    </tbody></table>";
 
+		helper.setTo(destinatario);
+		helper.setSubject(assunto);
+		helper.setText(html, true);
+		try {
+			mailSender.send(message);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 
-				helper.setTo(destinatario);
-				helper.setSubject(assunto);
-				helper.setText(html, true);
-
-				mailSender.send(message);
-				
 	}
 
 }
