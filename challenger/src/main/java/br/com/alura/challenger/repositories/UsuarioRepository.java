@@ -9,10 +9,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import br.com.alura.challenger.model.Transacao;
 import br.com.alura.challenger.model.Usuario;
 
+import java.util.Optional;
+
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     UserDetails findByUsuario(String username);
 
-    Usuario findByEmail(String email);
+    Optional< Usuario> findByEmail(String email);
 
 }

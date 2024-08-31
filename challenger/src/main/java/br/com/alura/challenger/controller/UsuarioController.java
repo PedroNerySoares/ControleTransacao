@@ -52,7 +52,7 @@ public class UsuarioController {
 		String senhaCriptografada = crip.gerarHash(password);
 
 		Usuario novoUsuario = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada, "S");
-		boolean enviou = enviar.enviar(usuarioDto.getUsuario(), usuarioDto.getEmail(), password);
+		boolean enviou = enviar.enviar( usuarioDto.getEmail(), password);
 		if (enviou) {
 			usuarioRepository.saveAndFlush(novoUsuario);
 			var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();

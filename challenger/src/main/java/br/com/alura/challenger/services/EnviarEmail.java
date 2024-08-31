@@ -18,7 +18,7 @@ public class EnviarEmail {
 	@Autowired
 	private JavaMailSender mailSender;
 
-	public boolean enviar(String usuario, String destinatario, String password) throws MessagingException {
+	public boolean enviar( String destinatario, String password) throws MessagingException {
 
 		MimeMessage message = mailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);

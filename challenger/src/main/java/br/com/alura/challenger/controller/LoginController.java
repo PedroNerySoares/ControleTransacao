@@ -1,13 +1,15 @@
 package br.com.alura.challenger.controller;
 
 import java.net.InetAddress;
+import java.util.Optional;
 
 import javax.mail.MessagingException;
 import javax.management.RuntimeErrorException;
 import javax.validation.Valid;
 
-import br.com.alura.challenger.enums.EmailsEnum;
+import br.com.alura.challenger.dto.autenticacaoDTO;
 import br.com.alura.challenger.services.EnviarEmail;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -53,43 +55,34 @@ public class LoginController {
             var authentication = manager.authenticate(authenticationToken);
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
+
             return ResponseEntity.ok(new dadosTokenJWT(tokenJWT));
 
         } catch (Exception e) {
-            throw new RuntimeException("Login ou senha invalida");
+            throw new RuntimeException("Email ou senha inválida");
         }
 
     }
 
     @PostMapping("/reset")
     private ResponseEntity<Boolean> RecuperarSenha(
-            @RequestBody br.com.alura.challenger.dto.autenticacaoDTO autenticacaoDTO) throws MessagingException {
+            @RequestBody autenticacaoDTO autenticacaoDTO) throws MessagingException {
 
-        Usuario usu = usuarioRepository.findByEmail(autenticacaoDTO.getUsuario());
-        String password = Integer.toString(geraSenhaAleatoria.geraSenha());
-        String senhaCriptografada = crip.gerarHash(password);
-        System.out.println(crip.checkHash(password, senhaCriptografada));
-
-
-        boolean enviou = enviar.enviar(usu.getUsuario(), usu.getEmail(), password, EmailsEnum.CRIARUSUARIO);
-
-//        if(!enviou){
-//            System.out.println("Não enviou email");
-//        }
-//
-        usu.setSenha(senhaCriptografada);
-        var teste = usuarioRepository.save(usu);
-        System.out.println("FU---------"+teste);
-//		if (enviou) {
-//			var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();
-//			return ResponseEntity.created(uri).build();
-//		}
+        Optional<Usuario> usu = usuarioRepository.findByEmail(autenticacaoDTO.getUsuario());
+        if(!usu.isPresent()){
+            throw new RuntimeException("Email não cadastrado");
+        }else {
 
 
-//        System.out.println(usu.getUsername());
+            String password = Integer.toString(geraSenhaAleatoria.geraSenha());
+            String senhaCriptografada = crip.gerarHash(password);
+            System.out.println(crip.checkHash(password, senhaCriptografada));
 
+            boolean enviou = enviar.enviar(usu.get().getEmail(), password);
+            usu.get().setSenha(senhaCriptografada);
+            usuarioRepository.save(usu.get());
 
-        return ResponseEntity.ok().body(null);
+            return ResponseEntity.ok().body(null);
+        }
     }
-
 }
