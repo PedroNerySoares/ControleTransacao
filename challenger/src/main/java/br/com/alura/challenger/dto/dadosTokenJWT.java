@@ -3,20 +3,27 @@ package br.com.alura.challenger.dto;
 public class dadosTokenJWT {
 
 
+
     private String token;
-    private String nome;
+
     private String email;
-    private String urlImage;
+    private String nome;
 
-    public dadosTokenJWT() {
-    }
+//    public dadosTokenJWT() {}
 
-    public String getNome() {
-        return nome;
-    }
 
-    public void setNome(String nome) {
+    public dadosTokenJWT(String token, String email, String nome) {
+        this.token = token;
+        this.email = email;
         this.nome = nome;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public String getEmail() {
@@ -27,24 +34,11 @@ public class dadosTokenJWT {
         this.email = email;
     }
 
-    public String getUrlImage() {
-        return urlImage;
+    public String getNome() {
+        return nome;
     }
 
-    public void setUrlImage(String urlImage) {
-        this.urlImage = urlImage;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
-
-    public dadosTokenJWT(String token) {
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    } 
-    
 }

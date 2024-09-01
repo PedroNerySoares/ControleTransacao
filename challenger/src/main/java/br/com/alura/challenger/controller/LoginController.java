@@ -55,8 +55,13 @@ public class LoginController {
             var authentication = manager.authenticate(authenticationToken);
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
+            Optional<Usuario> usu = usuarioRepository.findByEmail(autenticacaoDTO.getUsuario());
+            if (!usu.isPresent()) {
+                throw new RuntimeException("Email não cadastrado");
+            }
 
-            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT));
+            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT, usu.get().getEmail(),usu.get().getUsuario()));
+//            return ResponseEntity.ok(new dadosTokenJWT(tokenJW));
 
         } catch (Exception e) {
             throw new RuntimeException("Email ou senha inválida");
@@ -69,9 +74,9 @@ public class LoginController {
             @RequestBody autenticacaoDTO autenticacaoDTO) throws MessagingException {
 
         Optional<Usuario> usu = usuarioRepository.findByEmail(autenticacaoDTO.getUsuario());
-        if(!usu.isPresent()){
+        if (!usu.isPresent()) {
             throw new RuntimeException("Email não cadastrado");
-        }else {
+        } else {
 
 
             String password = Integer.toString(geraSenhaAleatoria.geraSenha());
