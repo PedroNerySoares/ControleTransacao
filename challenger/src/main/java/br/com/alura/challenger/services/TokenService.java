@@ -3,6 +3,7 @@ package br.com.alura.challenger.services;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class TokenService {
                     .withIssuer("API transacao")
                     .withSubject(usuario.getUsuario())
                     .withClaim("id", usuario.getId())
+                    .withClaim("roles", "administrador")
                     .withExpiresAt(dataExpiraxao())
                     .sign(algoritmo);
         } catch (JWTCreationException exception) {
