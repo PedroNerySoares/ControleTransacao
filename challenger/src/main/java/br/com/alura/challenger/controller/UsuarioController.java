@@ -39,15 +39,19 @@ public class UsuarioController {
 
 	CriptografiaService crip = new CriptografiaService();
 
-	
+
 	@Autowired
 	private GerarSenhaAleatoriaService geraSenhaAleatoria;
-	
+
 	@PostMapping
 	private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,
 			UriComponentsBuilder uriBuilder)
 			throws MessagingException {
 
+
+		if (usuarioRepository.findByEmail(usuarioDto.getEmail()).isEmpty()){
+			throw  new MessagingException("Email já cadastrado");
+		}
 		String password = Integer.toString(geraSenhaAleatoria.geraSenha());
 		String senhaCriptografada = crip.gerarHash(password);
 
@@ -90,6 +94,9 @@ public class UsuarioController {
 	private ResponseEntity<AlterarUsuarioDto> alterarUsuario(@PathVariable Long id,
 			@RequestBody AlterarUsuarioDto alteraUsuario) {
 
+		System.out.println(id);
+		System.out.println(alteraUsuario.getAntigaSenha());
+		System.out.println(alteraUsuario.getNovaSenha());
 		Optional<Usuario> user = usuarioRepository.findById(id);
 		if (user.isPresent()) {
 			if (crip.checkHash(alteraUsuario.getAntigaSenha(), user.get().getSenha())) {

@@ -63,8 +63,9 @@ public class TransacaoController {
 	}
 
 	@GetMapping("/suspeita/{anoMes}")
-	private List<Transacao> ListarTransacaoSuspeita(@PathVariable String anoMes) {
-		return transacaoRepository.listaTransacaoSuspeita(100000.00, anoMes);
+	private ResponseEntity<List<Transacao>> ListarTransacaoSuspeita(@PathVariable String anoMes) {
+		Double limite =9000.00;
+		return ResponseEntity.ok().body( transacaoRepository.listaTransacaoSuspeita(limite, anoMes));
 
 	}
 
@@ -78,11 +79,11 @@ public class TransacaoController {
 		tmpSql = "SELECT 'Saida', bancoOrigem,agenciaOrigem,contaOrigem,sum(valorTransacao) as total " +
 				"FROM transacao  where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoOrigem,agenciaOrigem,contaOrigem,dataHoraTransacao  " +
-				"HAVING  total >=1000000.00 " +
+				"HAVING  total >=9000.00 " +
 				"UNION " +
 				"SELECT 'Entrada',bancoDestino,agenciaDestino,contaDestino,sum(valorTransacao) as total " +
 				"FROM transacao where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
-				"GROUP BY bancoDestino,agenciaDestino,contaDestino HAVING  total >=1000000.00 ";
+				"GROUP BY bancoDestino,agenciaDestino,contaDestino HAVING  total >=9000.00 ";
 
 		stm.executeQuery(tmpSql);
 		System.out.println(tmpSql);
@@ -103,19 +104,19 @@ public class TransacaoController {
 
 	@GetMapping("suspeita/agencia/{anoMes}")
 	private List<AgenciaSuspeitaDto> ListarAgenciaSuspeita(@PathVariable String anoMes) throws SQLException {
-		listaContaSuspeita.clear();
+		listaAgenciaSuspeita.clear();
 		Connection connection = criarConexao.createConnection();
 		Statement stm = connection.createStatement();
 		String tmpSql;
 		tmpSql = "SELECT 'Saida', bancoOrigem,agenciaOrigem,sum(valorTransacao) as total " +
 				"FROM transacao  where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoOrigem,agenciaOrigem,dataHoraTransacao  " +
-				"HAVING  total >=1000000000.00 " +
+				"HAVING  total >=5000.00 " +
 				"UNION " +
 				"SELECT 'Entrada',bancoDestino,agenciaDestino,sum(valorTransacao) as total " +
 				"FROM transacao where date_FORMAT(dataHoraTransacao,'%Y%m') ='" + anoMes + "' " +
 				"GROUP BY bancoDestino,agenciaDestino " +
-				"HAVING  total >=1000000000.00 ";
+				"HAVING  total >=5000.00 ";
 
 		System.out.println(tmpSql);
 		stm.executeQuery(tmpSql);
