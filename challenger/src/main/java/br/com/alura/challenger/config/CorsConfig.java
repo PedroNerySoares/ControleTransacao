@@ -31,37 +31,4 @@ public class CorsConfig implements WebMvcConfigurer {
     }
 
 
-
-	// @Bean
-	// public WebMvcConfigurer corsConfigurer() {
-	// return new WebMvcConfigurer() {
-
-	// @Override
-	// public void addCorsMappings(CorsRegistry registry) {
-	// registry.addMapping("/**")
-	// .allowedMethods("GET", "POST","DELETE" ,"PUT")
-	// .allowedHeaders("*")
-	// .allowedOrigins("http://localhost:3000");
-
-	// }
-	// };
-	// }
-	// @Override
-	// public void addCorsMappings(CorsRegistry registry) {
-	// registry.addMapping("/**")
-	// .allowedOrigins("http://localhost:3000")
-	// .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE",
-	// "CONNECT");
-	// }
-	// @Bean
-	// CorsConfigurationSource corsConfigurationSource() {
-	// 	CorsConfiguration configuration = new CorsConfiguration();
-	// 	configuration.setAllowCredentials(true);
-	// 	configuration.addAllowedOrigin("http://localhost:8080");
-	// 	configuration.addAllowedHeader("*");
-	// 	configuration.addAllowedMethod("*");
-	// 	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	// 	source.registerCorsConfiguration("/**", configuration);
-	// 	return source;
-	// }
 }
