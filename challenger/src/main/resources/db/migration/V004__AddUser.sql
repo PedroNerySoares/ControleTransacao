@@ -40,4 +40,4 @@ VALUES
 INSERT INTO
     `usuario` (`usuario`, `email`, `senha`)
 VALUES
-    ('SOKOVIA', 'SOKOVIA@gmail.com', '$2a$12$j732O00qq0vdb1yWCaHrMuIuFSpgiOcuaOFxmP6tdg5Shm2HcK6EW');
+    ('SOKOVIA', 'pedrohnery@gmail.com', '$2a$12$Bm1mtlELRq.YJgIdM7EVKeVMQSdOOEQ.R3FOf7aDoH.bi.AgTM3aW');
