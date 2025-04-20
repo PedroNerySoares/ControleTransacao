@@ -46,85 +46,86 @@ import br.com.alura.challenger.services.TransacaoServices;
 @RequestMapping("/arquivo")
 public class ArquivoController {
 
-	@Autowired
-	ArquivoRepository arquivoRepository;
+    @Autowired
+    ArquivoRepository arquivoRepository;
 
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-	@Autowired
-	private TransacaoServices transacao;
+    @Autowired
+    private TransacaoServices transacao;
 
-	@Autowired
-	private TokenService tokenService;
+    @Autowired
+    private TokenService tokenService;
 
-	@Autowired
-	private SecurityFilter securityFilter;
+    @Autowired
+    private SecurityFilter securityFilter;
 
-	ModelMapper modelMapper = new ModelMapper();
+    ModelMapper modelMapper = new ModelMapper();
 
-	jdbcConfig criarConexao = new jdbcConfig();
+    jdbcConfig criarConexao = new jdbcConfig();
 
-	@GetMapping()
-	private List<listaArquivoDto> Arquivos() {
-		List<listaArquivoDto> lista = arquivoRepository.findAll()
-				.stream()
-				.map(arquivo -> modelMapper.map(arquivo, listaArquivoDto.class))
-				.collect(Collectors.toList());
+    @GetMapping()
+    private List<listaArquivoDto> Arquivos() {
+        List<listaArquivoDto> lista = arquivoRepository.findAll()
+                .stream()
+                .map(arquivo -> modelMapper.map(arquivo, listaArquivoDto.class))
+                .collect(Collectors.toList());
 
-		return lista;
+        return lista;
 
-	}
+    }
 
-	@GetMapping("{id}")
-	private ResponseEntity<Optional<Object>> DetalheArquivo(@PathVariable Long id) {
+    @GetMapping("{id}")
+    private ResponseEntity<Optional<Object>> DetalheArquivo(@PathVariable Long id) {
 
-		Optional<Object> arq = arquivoRepository.findById(id)
-				.map(arquivo -> modelMapper.map(arquivo, DetalheDto.class));
-		return ResponseEntity.ok().body(arq);
+        Optional<Object> arq = arquivoRepository.findById(id)
+                .map(arquivo -> modelMapper.map(arquivo, DetalheDto.class));
+        return ResponseEntity.ok().body(arq);
 
-	}
+    }
 
-	@PostMapping
-	private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated TesteDto teste) {
+    @PostMapping
+    private ResponseEntity GravarAquivo(HttpServletRequest request, @RequestBody @Validated TesteDto teste) {
 
-		Long idUser = (long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request)));
-		Usuario usuario = usuarioRepository.getById(idUser);
+        Long idUser = (long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request)));
+        Usuario usuario = usuarioRepository.getById(idUser);
+        System.out.println(LocalDate.now());
+        Arquivo arq = new Arquivo(
+                teste.getNomeArquivo(),
+                teste.getTamanhoArquivo(),
+                usuario,
+                LocalDateTime.now(),
+                teste.getListaTransacao().get(0).getDataHoraTransacao().toLocalDate(),
+                teste.getListaTransacao());
 
-		Arquivo arq = new Arquivo(
-				teste.getNomeArquivo(),
-				teste.getTamanhoArquivo(),
-				usuario,
-				LocalDateTime.now(),
-				teste.getListaTransacao().get(0).getDataHoraTransacao().toLocalDate(),
-				teste.getListaTransacao());
+        arquivoRepository.save(arq);
 
-		arquivoRepository.save(arq);
+        return ResponseEntity.status(200).body(null);
+    }
 
-		return ResponseEntity.status(200).body(null);
-	}
+    @DeleteMapping
+    private void DeletarArquivo() {
+        arquivoRepository.deleteAll();
+    }
 
-	@DeleteMapping
-	private void DeletarArquivo() {
-		arquivoRepository.deleteAll();
-	}
+    @GetMapping("recuperaAnoMes")
+    public List<String> listarAnoMesTransacao() throws SQLException {
+        List<String> anoMesList = new ArrayList<>();
 
-	@GetMapping("recuperaAnoMes")
-	private String ListarDataTransacao() throws SQLException {
-		Connection connection = criarConexao.createConnection();
-		Statement stm = connection.createStatement();
-		String tmpSql = "";
-		String minMax = "";
-		tmpSql = "select min(dttrans),max(dttrans)  from arquivo";
-		stm.executeQuery(tmpSql);
-		ResultSet rst = stm.getResultSet();
-		while (rst.next()) {
-			minMax = rst.getString(1) + ";" + rst.getString(2);
-		}
-		rst.close();
+        String sql = "SELECT DISTINCT DATE_FORMAT(dttrans, '%Y%m') AS mesAno FROM arquivo  ";
 
-		return minMax;
+        try (Connection connection = criarConexao.createConnection();
+             Statement stm = connection.createStatement();
+             ResultSet rst = stm.executeQuery(sql)) {
 
-	}
+            while (rst.next()) {
+                anoMesList.add(rst.getString("mesAno"));
+            }
+        }
+
+        return anoMesList;
+    }
+
 
 }
