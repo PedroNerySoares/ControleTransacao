@@ -8,14 +8,24 @@ public class dadosTokenJWT {
 
     private String email;
     private String nome;
+    private Long id;
+    private String role;
 
-//    public dadosTokenJWT() {}
 
-
-    public dadosTokenJWT(String token, String email, String nome) {
+    public dadosTokenJWT(String token, String email, String nome, Long id, String role) {
         this.token = token;
         this.email = email;
         this.nome = nome;
+        this.id = id;
+        this.role = role;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getToken() {
@@ -40,5 +50,13 @@ public class dadosTokenJWT {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

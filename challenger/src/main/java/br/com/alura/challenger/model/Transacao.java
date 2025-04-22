@@ -53,7 +53,7 @@ public class Transacao {
 	// @NotBlank(message = "Data da Transação obrigatório")
 	private LocalDateTime dataHoraTransacao;
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Arquivo arquivo;
 	
 	public Transacao() {}
