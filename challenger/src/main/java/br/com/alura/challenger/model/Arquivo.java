@@ -40,13 +40,13 @@ public class Arquivo {
 	@Column(name = "dttrans")
 	private LocalDate dataTransacao;
 
-	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_usuario", referencedColumnName = "id")
+	@OneToOne(cascade = CascadeType.PERSIST)
+	@JoinColumn(name = "id_usuario", referencedColumnName = "id")
 	private Usuario usuario;
 
-	
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name =  "arquivo_idarq")
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "arquivo_idarq")
 	private List<Transacao> listaTransacao = new ArrayList<Transacao>();
 
 

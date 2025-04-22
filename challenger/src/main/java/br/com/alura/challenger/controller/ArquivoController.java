@@ -108,6 +108,16 @@ public class ArquivoController {
     private void DeletarArquivo() {
         arquivoRepository.deleteAll();
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarArquivo(@PathVariable Long id) {
+        if (!arquivoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        arquivoRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping("recuperaAnoMes")
     public List<String> listarAnoMesTransacao() throws SQLException {
