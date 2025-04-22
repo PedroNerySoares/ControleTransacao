@@ -2,6 +2,7 @@ package br.com.alura.challenger.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.*;
 
@@ -33,29 +34,16 @@ public class Usuario implements UserDetails {
 	)
 	private List<Roles> roles;
 
-
-
 	public Usuario() {
 	}
 
-	public Usuario(String usuario, String email, String senha, String status) {
+
+
+	public Usuario(String usuario, String email, String senha, String status, List<Roles> roles) {
 		this.usuario = usuario;
 		this.email = email;
 		this.senha = senha;
 		this.status = "S";
-	}
-
-	public Usuario(Long id, String usuario, String email, String senha, String status, String primeiroNome, String ultimoNome, String cpf, String dateNascimento, String sexo, List<Roles> roles) {
-		this.id = id;
-		this.usuario = usuario;
-		this.email = email;
-		this.senha = senha;
-		this.status = status;
-		this.primeiroNome = primeiroNome;
-		this.ultimoNome = ultimoNome;
-		this.cpf = cpf;
-		this.dateNascimento = dateNascimento;
-		this.sexo = sexo;
 		this.roles = roles;
 	}
 

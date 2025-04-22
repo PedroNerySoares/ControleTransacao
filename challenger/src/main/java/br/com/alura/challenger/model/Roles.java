@@ -1,6 +1,8 @@
 package br.com.alura.challenger.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public class Roles {
 
     private String nome;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "roles")
     private List<Usuario> usuarios;
 

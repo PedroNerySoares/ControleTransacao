@@ -1,5 +1,6 @@
 package br.com.alura.challenger.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,8 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import br.com.alura.challenger.dto.AlterarUsuarioDto;
+import br.com.alura.challenger.model.Roles;
+import br.com.alura.challenger.repositories.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,6 +32,9 @@ public class UsuarioController {
     UsuarioRepository usuarioRepository;
 
     @Autowired
+    RolesRepository rolesRepository;
+
+    @Autowired
     private EnviarEmail enviar;
 
     CriptografiaService crip = new CriptografiaService();
@@ -36,30 +42,42 @@ public class UsuarioController {
 
     @Autowired
     private GerarSenhaAleatoriaService geraSenhaAleatoria;
-
     @PostMapping
     private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,
                                                         UriComponentsBuilder uriBuilder)
             throws MessagingException {
 
-
-        if (usuarioRepository.findByEmail(usuarioDto.getEmail()).isEmpty()) {
+        if (usuarioRepository.findByEmail(usuarioDto.getEmail()).isPresent()) {
             throw new MessagingException("Email já cadastrado");
         }
+
+        Roles role = rolesRepository.findById(usuarioDto.getIdRole())
+                .orElseThrow(() -> new IllegalArgumentException("Role não encontrada para o ID: " + usuarioDto.getIdRole()));
+
+        List<Roles> listaRoles = new ArrayList<>();
+        listaRoles.add(role);
+
         String password = Integer.toString(geraSenhaAleatoria.geraSenha());
         String senhaCriptografada = crip.gerarHash(password);
 
-        Usuario novoUsuario = new Usuario(usuarioDto.getUsuario(), usuarioDto.getEmail(), senhaCriptografada, "S");
+        Usuario novoUsuario = new Usuario(
+                usuarioDto.getUsuario(),
+                usuarioDto.getEmail(),
+                senhaCriptografada,
+                "S",
+                listaRoles
+        );
+
         boolean enviou = enviar.enviar(usuarioDto.getEmail(), password);
         if (enviou) {
             usuarioRepository.saveAndFlush(novoUsuario);
             var uri = uriBuilder.path("/usuario/{id}").buildAndExpand(novoUsuario.getId()).toUri();
-            return ResponseEntity.created(uri).build();
+            return ResponseEntity.created(uri).body(usuarioDto); // ou use uma nova DTO se preferir
         } else {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         }
-
     }
+
 
     @GetMapping
     private ResponseEntity<List<Usuario>> listarUsuarios() {
@@ -75,9 +93,9 @@ public class UsuarioController {
     @GetMapping("/{id}")
     private ResponseEntity<Optional<Usuario>> listarUsuarioId(@PathVariable Long id) {
         Optional<Usuario> user = usuarioRepository.findById(id);
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             return ResponseEntity.status(200).body(user);
-        }else{
+        } else {
             throw new RuntimeException("User não Localizado");
 
         }

@@ -14,15 +14,27 @@ public class UsuarioDto {
 
 	private String status;
 
+	private Long idRole;
+
 	public UsuarioDto() {
 	}
 
 	public UsuarioDto(Long id, @NotBlank(message = "Nome de usuário obriatório!") String usuario,
-			@NotBlank(message = "e-mail do usuário obriatório!") String email, String status) {
+			@NotBlank(message = "e-mail do usuário obriatório!") String email, String status,Long idRole) {
 		this.id = id;
 		this.usuario = usuario;
 		this.email = email;
 		this.status = status;
+		this.idRole = idRole;
+	}
+
+
+	public Long getIdRole() {
+		return idRole;
+	}
+
+	public void setIdRole(Long idRole) {
+		this.idRole = idRole;
 	}
 
 	public Long getId() {
