@@ -60,8 +60,7 @@ public class LoginController {
                 throw new RuntimeException("Email não cadastrado");
             }
 
-            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT, usu.get().getEmail(),usu.get().getUsuario()));
-//            return ResponseEntity.ok(new dadosTokenJWT(tokenJW));
+            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT, usu.get().getEmail(),usu.get().getUsuario(),usu.get().getId(),usu.get().getAuthorities().toString().replace("[","").replace("]","")));
 
         } catch (Exception e) {
             throw new RuntimeException("Email ou senha inválida");

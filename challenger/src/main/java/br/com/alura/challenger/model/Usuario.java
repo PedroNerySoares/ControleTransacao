@@ -3,11 +3,7 @@ package br.com.alura.challenger.model;
 import java.util.Collection;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,6 +19,22 @@ public class Usuario implements UserDetails {
 	private String senha;
 	private String status;
 
+	private String primeiroNome;
+	private String ultimoNome;
+	private String cpf;
+	private String dateNascimento;
+	private String sexo;
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+			name = "usuarios_roles",
+			joinColumns = @JoinColumn(name = "usuario_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id")
+	)
+	private List<Roles> roles;
+
+
+
 	public Usuario() {
 	}
 
@@ -31,7 +43,60 @@ public class Usuario implements UserDetails {
 		this.email = email;
 		this.senha = senha;
 		this.status = "S";
-		// this.accountNonLocked = accountNonLocked;
+	}
+
+	public Usuario(Long id, String usuario, String email, String senha, String status, String primeiroNome, String ultimoNome, String cpf, String dateNascimento, String sexo, List<Roles> roles) {
+		this.id = id;
+		this.usuario = usuario;
+		this.email = email;
+		this.senha = senha;
+		this.status = status;
+		this.primeiroNome = primeiroNome;
+		this.ultimoNome = ultimoNome;
+		this.cpf = cpf;
+		this.dateNascimento = dateNascimento;
+		this.sexo = sexo;
+		this.roles = roles;
+	}
+
+	public String getPrimeiroNome() {
+		return primeiroNome;
+	}
+
+	public void setPrimeiroNome(String primeiroNome) {
+		this.primeiroNome = primeiroNome;
+	}
+
+	public String getUltimoNome() {
+		return ultimoNome;
+	}
+
+	public void setUltimoNome(String ultimoNome) {
+		this.ultimoNome = ultimoNome;
+	}
+
+	public String getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+
+	public String getDateNascimento() {
+		return dateNascimento;
+	}
+
+	public void setDateNascimento(String dateNascimento) {
+		this.dateNascimento = dateNascimento;
+	}
+
+	public String getSexo() {
+		return sexo;
+	}
+
+	public void setSexo(String sexo) {
+		this.sexo = sexo;
 	}
 
 	public Long getId() {
@@ -74,9 +139,12 @@ public class Usuario implements UserDetails {
 		this.status = status;
 	}
 
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+		return roles.stream()
+				.map(role -> new SimpleGrantedAuthority(role.getNome()))
+				.toList();
 	}
 
 	@Override
