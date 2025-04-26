@@ -1,11 +1,13 @@
 package br.com.alura.challenger.model;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +25,7 @@ public class Usuario implements UserDetails {
 	private String primeiroNome;
 	private String ultimoNome;
 	private String cpf;
-	private String dateNascimento;
+	private LocalDate dateNascimento;
 	private String sexo;
 
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -71,11 +73,11 @@ public class Usuario implements UserDetails {
 		this.cpf = cpf;
 	}
 
-	public String getDateNascimento() {
+	public LocalDate getDateNascimento() {
 		return dateNascimento;
 	}
 
-	public void setDateNascimento(String dateNascimento) {
+	public void setDateNascimento(LocalDate dateNascimento) {
 		this.dateNascimento = dateNascimento;
 	}
 

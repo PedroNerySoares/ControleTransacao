@@ -1,18 +1,21 @@
 package br.com.alura.challenger.dto;
 
+import java.time.LocalDate;
+
 public class AlterarUsuarioDto {
 
         private String primeiroNome;
         private String ultimoNome;
         private String cpf;
-        private String dateNascimento;
+
+        private LocalDate dateNascimento;
         private String sexo;
         private String endereco;
 
         public AlterarUsuarioDto() {
         }
 
-        public AlterarUsuarioDto(String primeiroNome, String ultimoNome, String cpf, String dataNascimento, String sexo, String endereco) {
+        public AlterarUsuarioDto(String primeiroNome, String ultimoNome, String cpf, LocalDate dataNascimento, String sexo, String endereco) {
             this.primeiroNome = primeiroNome;
             this.ultimoNome = ultimoNome;
             this.cpf = cpf;
@@ -46,11 +49,11 @@ public class AlterarUsuarioDto {
             this.cpf = cpf;
         }
 
-        public String getDateNascimento() {
+        public LocalDate getDateNascimento() {
             return dateNascimento;
         }
 
-        public void setDateNascimento(String dateNascimento) {
+        public void setDateNascimento(LocalDate dateNascimento) {
             this.dateNascimento = dateNascimento;
         }
 
