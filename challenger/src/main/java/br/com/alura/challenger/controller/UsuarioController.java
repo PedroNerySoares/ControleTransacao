@@ -44,8 +44,7 @@ public class UsuarioController {
     private GerarSenhaAleatoriaService geraSenhaAleatoria;
     @PostMapping
     private ResponseEntity<UsuarioDto> CadastrarUsuario(@Valid @RequestBody UsuarioDto usuarioDto,
-                                                        UriComponentsBuilder uriBuilder)
-            throws MessagingException {
+                                                        UriComponentsBuilder uriBuilder)  throws MessagingException {
 
         if (usuarioRepository.findByEmail(usuarioDto.getEmail()).isPresent()) {
             throw new MessagingException("Email já cadastrado");
@@ -55,6 +54,7 @@ public class UsuarioController {
                 .orElseThrow(() -> new IllegalArgumentException("Role não encontrada para o ID: " + usuarioDto.getIdRole()));
 
         List<Roles> listaRoles = new ArrayList<>();
+
         listaRoles.add(role);
 
         String password = Integer.toString(geraSenhaAleatoria.geraSenha());
@@ -129,7 +129,7 @@ public class UsuarioController {
 
             } else {
                 System.out.println("senha invalida");
-                return ResponseEntity.status(404).body(null);
+                throw new RuntimeException("Senha atual não confere");
 
             }
 

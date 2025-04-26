@@ -52,6 +52,7 @@ public class LoginController {
         try {
             var authenticationToken = new UsernamePasswordAuthenticationToken(autenticacaoDTO.getUsuario(),
                     autenticacaoDTO.getSenha());
+
             var authentication = manager.authenticate(authenticationToken);
             var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
 
