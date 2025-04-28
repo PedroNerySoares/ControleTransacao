@@ -86,7 +86,13 @@ export async function putChangeDatasUser(token: string, idUser: number, data: IC
       cpf: data.cpf,
       dateNascimento: data.dataNascimento,
       sexo: data.sexo,
-      endereco: data.endereco,
+      numero: data.numero,           
+      complemento: data.complemento, 
+      bairro: data.bairro,           
+      estado: data.estado,           
+      cep: data.cep,
+      rua:data.rua,
+      municipio:data.municipio
     })
   });
 

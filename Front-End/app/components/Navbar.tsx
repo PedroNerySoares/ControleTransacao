@@ -48,8 +48,7 @@ console.log(filteredMenu)
             <h1 className="text-2xl font-bold text-gray-800">
               <Link href="/importacao">Meu Site</Link>
             </h1>
-
-            {/* Desktop Menu */}
+ 
             <ul className="hidden md:flex items-center space-x-8 text-gray-700 font-medium">
               {filteredMenu.map((item, index) => (
                 <li key={index}>
@@ -58,8 +57,7 @@ console.log(filteredMenu)
                   </Link>
                 </li>
               ))}
-
-              {/* Avatar + dropdown */}
+ 
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(prev => !prev)}
@@ -80,8 +78,8 @@ console.log(filteredMenu)
                       </Link>
                     </li>
                     <li>
-                      <Link href="/settingsUsuario" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">
-                        Settings
+                      <Link href="/meuPerfil" onClick={() => setIsDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">
+                        Meu Perfil
                       </Link>
                     </li>
                   </ul>
