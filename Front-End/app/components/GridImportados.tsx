@@ -11,27 +11,17 @@ import TableHead from './Table/TableHead';
 import TableHeader from './Table/TableHeader';
 import ModalStandart from './Modal';
 
-export default function GridImportados() {
-  const [arquivos, setArquivos] = useState<IArquivos[]>([]);
+
+interface PropsData {
+  data?: IArquivos[],
+}
+export default function GridImportados({data}:PropsData) {
+  // const [arquivos, setArquivos] = useState<IArquivos[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
   const [arquivoSelecionado, setArquivoSelecionado] = useState<string | undefined>();
 
-  const { data: session } = useSession();
-
-  async function fetchArquivos() {
-
-    const token = session?.user.accessToken;
-    const dataArquivo = await getArquivo(token);
-    setArquivos(dataArquivo || []);
-
-  }
-
-  useEffect(() => {
-    if (session) {
-      fetchArquivos();
-    }
-  }, [session]);
+  const { data: session } = useSession(); 
 
   async function handleDelete() {
     if (!arquivoSelecionado) return;
@@ -47,7 +37,7 @@ export default function GridImportados() {
         isLoading: false,
         autoClose: 3000,
       });
-      fetchArquivos();
+   
     } else {
       toast.update(toastId, {
         render: "Algo inesperado aconteceu!",
@@ -71,7 +61,8 @@ export default function GridImportados() {
         </tr>
       </TableHead>
       <tbody>
-        {arquivos.map((arquivo, index) => (
+      
+        {data?.map((arquivo, index) => (
           <tr key={index} className="odd:bg-white even:bg-gray-50 border-b dark:border-gray-700">
             <TableCell className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
               {arquivo.dataImportacao.toString()}

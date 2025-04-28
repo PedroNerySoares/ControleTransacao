@@ -8,7 +8,18 @@ import { IUsuario } from "@/app/interfaces/IUsuario";
 
 const BASEURL = "http://192.168.0.135:8080";
 
-
+export async function PostUploadImg(token:string,data:any){
+  const response = await fetch(`${BASEURL}/imagens/upload`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+     
+    },
+    
+    body:data 
+  });
+  return await response;
+}
 // ***************** Requisções Login ************************>>
 export async function PostResetPassword(email: String) {
   const response = await fetch(`${BASEURL}/login/reset`, {
@@ -36,7 +47,7 @@ export async function getUsuarios(token: string) {
     },
   });
 
-  
+
   return await response.json();
 }
 export async function getDataUser(token: string, idUser: number) {
@@ -164,9 +175,9 @@ export async function getArquivo(token: string) {
       Authorization: `Bearer ${token}`,
     },
   });
-  
 
-  return await response.json();
+
+  return await response;
 
 }
 export async function getDatasTransacao(token: String) {

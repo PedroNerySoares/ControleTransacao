@@ -23,7 +23,8 @@ public class CorsConfig implements WebMvcConfigurer {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:3000"); // Domínio do seu frontend
+        config.addAllowedOrigin("http://localhost:3000/**"); // Domínio do seu frontend
+        config.addAllowedOrigin("http://192.168.0.135:3000"); // Domínio do seu frontend
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
