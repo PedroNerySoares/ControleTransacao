@@ -65,6 +65,7 @@ public class UsuarioController {
                 usuarioDto.getEmail(),
                 senhaCriptografada,
                 "S",
+                usuarioDto.getCep(),usuarioDto.getBairro(),usuarioDto.getComplemento(),usuarioDto.getEstado(),usuarioDto.getRua(),usuarioDto.getNumero(),usuarioDto.getMunicipio(),
                 listaRoles
         );
 
@@ -151,6 +152,12 @@ public class UsuarioController {
             user.get().setDateNascimento(alteraUsuario.getDateNascimento());
             user.get().setCpf(alteraUsuario.getCpf());
             user.get().setSexo(alteraUsuario.getSexo());
+            user.get().setCep(alteraUsuario.getCep());
+            user.get().setRua(alteraUsuario.getRua());
+            user.get().setBairro(alteraUsuario.getBairro());
+            user.get().setComplemento(alteraUsuario.getComplemento());
+            user.get().setEstado(alteraUsuario.getEstado());
+            user.get().setMunicipio(alteraUsuario.getMunicipio());
             usuarioRepository.save(user.get());
             return ResponseEntity.status(200).body(null);
 
