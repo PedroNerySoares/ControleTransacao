@@ -48,7 +48,7 @@ export default function AvatarProfile({ ...props }: AvatarProfileProps) {
   //   }
   // }
 
-  useEffect(() => { handleFoto() }, [token])
+  // useEffect(() => { handleFoto() }, [token])
   return (
     <div className="relative">
       <label htmlFor="file-input" className="cursor-pointer">
@@ -67,7 +67,7 @@ export default function AvatarProfile({ ...props }: AvatarProfileProps) {
         type="file"
         accept="image/jpeg, image/png" // Adicione os formatos desejados
         className="hidden"
-        onChange={(e) => handleFileChange(e)}
+      //  onChange={(e) => handleFileChange(e)}
       />
     </div>
   )

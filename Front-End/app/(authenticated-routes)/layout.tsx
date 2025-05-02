@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
-import { nextAuthOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions as nextAuthOptions } from "@/libs/authOptions";
+
 import Navbar from "../components/Navbar";
 import '../globals.css'
 import { useSession } from "next-auth/react";

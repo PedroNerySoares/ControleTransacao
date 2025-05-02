@@ -14,6 +14,10 @@ public class ImageModel {
     @Column(name = "IDIMG", nullable = false)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "IDUSER", referencedColumnName = "id")
+    private Usuario usuario;
+
     @Column(name = "URL", nullable = false)
     private String url;
 
@@ -23,10 +27,9 @@ public class ImageModel {
     @Column(name = "CREATEAT", nullable = false)
     private LocalDateTime createdAt;
 
+    public ImageModel(  Usuario usuario, String url, String typeimg, LocalDateTime createdAt) {
 
-
-    public ImageModel(Long id, String url, String typeimg, LocalDateTime createdAt) {
-        this.id = id;
+        this.usuario = usuario;
         this.url = url;
         this.typeimg = typeimg;
         this.createdAt = createdAt;
@@ -38,6 +41,14 @@ public class ImageModel {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     public String getUrl() {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-toastify';
 
-import { deleteArquivo, getArquivo } from '@/libs/fetchsApi';
+import { deleteArquivo } from '@/libs/fetchsApi';
 import { IArquivos } from '../interfaces/IArquivos';
 
 import Table from './Table/Table';
@@ -10,24 +10,29 @@ import TableCell from './Table/TableCell';
 import TableHead from './Table/TableHead';
 import TableHeader from './Table/TableHeader';
 import ModalStandart from './Modal';
-
-
-interface PropsData {
-  data?: IArquivos[],
+interface GridImportadosProps {
+  data: IArquivos[];
 }
-export default function GridImportados({data}:PropsData) {
-  // const [arquivos, setArquivos] = useState<IArquivos[]>([]);
+export default function GridImportados({ data }: GridImportadosProps) {
+  const [arquivos, setArquivos] = useState<IArquivos[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalAberto, setModalAberto] = useState(false);
-  const [arquivoSelecionado, setArquivoSelecionado] = useState<string | undefined>();
+  const [arquivoSelecionado, setArquivoSelecionado] = useState<String|undefined >();
 
-  const { data: session } = useSession(); 
-
+  const { data: session } = useSession();
+ 
   async function handleDelete() {
     if (!arquivoSelecionado) return;
 
     const toastId = toast.loading("Excluindo arquivo...");
+
     const token = session?.user.accessToken;
+
+    if (!token) {
+      toast.error("Access token não disponível!");
+      return;
+    }
+
     const response = await deleteArquivo(token, arquivoSelecionado);
 
     if (response.ok) {
@@ -37,7 +42,7 @@ export default function GridImportados({data}:PropsData) {
         isLoading: false,
         autoClose: 3000,
       });
-   
+
     } else {
       toast.update(toastId, {
         render: "Algo inesperado aconteceu!",
@@ -61,8 +66,7 @@ export default function GridImportados({data}:PropsData) {
         </tr>
       </TableHead>
       <tbody>
-      
-        {data?.map((arquivo, index) => (
+        {data.map((arquivo, index) => (
           <tr key={index} className="odd:bg-white even:bg-gray-50 border-b dark:border-gray-700">
             <TableCell className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
               {arquivo.dataImportacao.toString()}
@@ -79,7 +83,7 @@ export default function GridImportados({data}:PropsData) {
               </a>
               <button
                 onClick={() => {
-                  setArquivoSelecionado(arquivo.id);
+                  setArquivoSelecionado(arquivo.id?arquivo.id:undefined);  
                   setModalAberto(true);
                 }}
                 className="font-medium text-red-600 dark:text-red-500 hover:underline p-2"

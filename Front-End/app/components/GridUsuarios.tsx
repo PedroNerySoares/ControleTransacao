@@ -13,7 +13,7 @@ interface PropsUsuarios {
 }
 
 export default function GridUsuarios({ data }: PropsUsuarios) {
-  const [usuarios, setUsuarios] = useState<IUsuario[]>(data);  
+  const [usuarios, setUsuarios] = useState<IUsuario[]>(data);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState<IUsuario | null>(null);
   const [modalAberto, setModalAberto] = useState<{ [key: string]: boolean }>({
     editar: false,
@@ -24,7 +24,7 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
   const [senhaNova, setSenhaNova] = useState("");
 
   const { data: session } = useSession();
- 
+
   useEffect(() => {
     setUsuarios(data);
   }, [data]);
@@ -39,9 +39,16 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
 
   const handleChangePassword = async (event: SyntheticEvent) => {
     event.preventDefault();
-    if (!usuarioSelecionado) return;
 
-    await putChangePassword(session?.user.accessToken, usuarioSelecionado.id, {
+    if (!usuarioSelecionado || !usuarioSelecionado.id) return;
+    const token = session?.user.accessToken;
+    if (!token) {
+      toast.error("Access token não disponível!");
+      return;
+    }
+
+
+    await putChangePassword(token, usuarioSelecionado.id, {
       email: usuarioSelecionado.email,
       oldPassword: senhaAntiga,
       newPassword: senhaNova,
@@ -52,9 +59,15 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
 
   const handleDeleteUser = async (event: SyntheticEvent) => {
     event.preventDefault();
-    if (!usuarioSelecionado) return;
+    if (!usuarioSelecionado || !usuarioSelecionado.id) return;
+    const token = session?.user.accessToken;
+    if (!token) {
+      toast.error("Access token não disponível!");
+      return;
+    }
 
-    const res = await deleteUser(session?.user.accessToken, usuarioSelecionado.id);
+
+    const res = await deleteUser(token, usuarioSelecionado.id);
     if (res) {
       toggleModal("excluir");
       toast.success("Usuário excluído com sucesso!");
@@ -65,23 +78,23 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
   const handleResetPassword = async (event: SyntheticEvent) => {
     event.preventDefault();
     if (!usuarioSelecionado) return;
-    
+
     const toastId = toast.loading("Resetando a senha...");
     const res = await PostResetPassword(usuarioSelecionado.email);
     if (res) {
       toggleModal("reset");
-      toast.update(toastId,{
-        isLoading:false,
-        type:"success",
-        render:"Senha resetada com sucesso!",
-        autoClose:3000
+      toast.update(toastId, {
+        isLoading: false,
+        type: "success",
+        render: "Senha resetada com sucesso!",
+        autoClose: 3000
       });
     } else {
-      toast.update(toastId,{
-        isLoading:false,
-        type:"error",
-        render:"Erro ao resetar a senha do usuário!",
-        autoClose:3000
+      toast.update(toastId, {
+        isLoading: false,
+        type: "error",
+        render: "Erro ao resetar a senha do usuário!",
+        autoClose: 3000
       });
     }
   };
@@ -100,12 +113,17 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
           </thead>
           <tbody>
             {usuarios.map((usuario, index) => (
-              <TableRow key={usuario.id} index={index}>
+              <TableRow key={index} index={index}>
                 <td className="px-4 py-2 font-medium text-gray-900 dark:text-white whitespace-nowrap">
                   {usuario.usuario.toUpperCase()}
                 </td>
-                <td className="px-4 py-2">{usuario.authorities[0]?.authority}</td>
+
+                <td className="px-4 py-2">
+                  {usuario.authorities!.length > 0 ? usuario.authorities![0].authority : ""}
+                </td>
+
                 <td className="px-4 py-2">{usuario.email.toUpperCase()}</td>
+
                 <td className="px-4 py-2 flex flex-col sm:flex-row gap-2">
                   <button
                     onClick={() => toggleModal("reset", usuario)}
@@ -140,7 +158,7 @@ export default function GridUsuarios({ data }: PropsUsuarios) {
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
-              value={usuarioSelecionado?.email || ""}
+              value={(usuarioSelecionado?.email ?? "").toString()}
               readOnly
               className="mt-1 w-full px-3 py-2 border rounded-lg bg-gray-100 text-gray-700"
             />

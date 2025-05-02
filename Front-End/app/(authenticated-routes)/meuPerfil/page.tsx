@@ -11,8 +11,7 @@ import { fetchCep } from "@/libs/ferchsExterno";
 import { IChangeDatasUser } from "@/app/interfaces/IChangeDatasUser";
 import { IChangePassword } from "@/app/interfaces/IChangePassword";
 
-import ImageAvatar from "../../../public/avatar.jpeg";
-
+import foto from '@/public/avatar.jpeg';
 // Interfaces
 interface FormDataState {
   usuario: string;
@@ -67,7 +66,7 @@ export default function MeuPerfil() {
   const [confirmacaoSenha, setConfirmacaoSenha] = useState("");
   const [cepError, setCepError] = useState(false);
 
-  // Funções utilitárias
+  
   const validarCPF = (cpf: string) => {
     cpf = cpf.replace(/[^\d]+/g, "");
     if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
@@ -82,49 +81,46 @@ export default function MeuPerfil() {
     if (resto === 10 || resto === 11) resto = 0;
     return resto === parseInt(cpf.charAt(10));
   };
-
+ 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [avatar, setAvatar] = useState<string | null>(null);
-
+  const [avatar, setAvatar] = useState<string | any>(session?.user.image ?? foto);
+  
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-     
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  // const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
 
-      // Prepara para enviar para o servidor
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('idTeam',"1");
+  //   const file = event.target.files?.[0];
+  //   if (file) {
 
-      try {
-        const response = await PostUploadImg(session?.user.accessToken,formData)
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => {
+  //       setAvatar(reader.result as string);
+  //     };
+  //     reader.readAsDataURL(file);
 
-        if (!response.ok) {
-          throw new Error('Erro ao fazer upload');
-        }
+  //     // Prepara para enviar para o servidor
+  //     const formData = new FormData();
+  //     formData.append('file', file);
+  //     formData.append('idTeam', "1");
 
-        console.log('Upload feito com sucesso!');
-      } catch (error) {
-        console.error('Erro no upload:', error);
-      }
-    }
-  };
+  //     try {
+  //       const response = await PostUploadImg(session?.user.accessToken, formData)
+
+  //       if (!response.ok) {
+  //         throw new Error('Erro ao fazer upload');
+  //       }
+
+  //       console.log('Upload feito com sucesso!');
+  //     } catch (error) {
+  //       console.error('Erro no upload:', error);
+  //     }
+  //   }
+  // };
 
 
-  const formatarCPF = (valor: string) =>
-    valor.replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+ 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -155,12 +151,7 @@ export default function MeuPerfil() {
       toast.error("CPF inválido!");
       return;
     }
-
-    if (!formData.primeiroNome || !formData.ultimoNome || !formData.dataNascimento || !formData.sexo || !formData.rua) {
-      toast.error("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
+  
     const dadosAtualizados: IChangeDatasUser = {
       usuario: formData.usuario,
       perfil: formData.perfil,
@@ -177,58 +168,81 @@ export default function MeuPerfil() {
       rua: formData.rua,
       municipio: formData.municipio,
     };
-
+  
     try {
       const loadingToast = toast.loading("Salvando alterações...");
-      const response = await putChangeDatasUser(session?.user.accessToken, session?.user.id, dadosAtualizados);
-
+  
+      // Verifica se o accessToken está disponível
+      if (!session?.user.accessToken) {
+        throw new Error("Access token não disponível");
+      }
+  
+      const response = await putChangeDatasUser(
+        session.user.accessToken,  
+        session.user.id,
+        dadosAtualizados
+      );
+  
       toast.update(loadingToast, {
         render: response?.ok ? "Alterações salvas com sucesso!" : "Erro ao salvar alterações.",
         type: response?.ok ? "success" : "error",
         isLoading: false,
         autoClose: 3000,
       });
-    } catch {
+    } catch (error) {
       toast.error("Erro de rede ou servidor.");
+      console.error(error); // Para depuração, pode ser útil
     }
   };
+
 
   const handleChangePassword = async () => {
     if (novaSenha !== confirmacaoSenha) {
       toast.error("As senhas não coincidem!");
       return;
     }
-
-    const dadosSenha: IChangePassword = {
-      email: formData.email,
-      oldPassword: senhaAtual,
-      newPassword: novaSenha,
-    };
-
-    const loadingToast = toast.loading("Alterando senha...");
-    const response = await putChangePassword(session?.user.accessToken, session?.user.id, dadosSenha);
-
-    if (response.ok) {
-      setSenhaAtual("");
-      setNovaSenha("");
-      setConfirmacaoSenha("");
-      toast.update(loadingToast, {
-        render: "Senha alterada com sucesso!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    } else {
-      const errorData = await response.json();
-      toast.update(loadingToast, {
-        render: errorData.message || "Erro inesperado! Favor contactar suporte.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
+  
+    try {
+      const loadingToast = toast.loading("Alterando senha...");
+  
+      // Verifica se o accessToken está disponível
+      if (!session?.user.accessToken) {
+        throw new Error("Access token não disponível");
+      }
+      const dadosSenha: IChangePassword = {
+        email: formData.email,
+        oldPassword: senhaAtual,
+        newPassword: novaSenha,
+      };
+  
+      const response = await putChangePassword(
+        session.user.accessToken,  
+        session.user.id,
+        dadosSenha
+      );
+  
+      if (response.ok) {
+        toast.update(loadingToast, {
+          render: "Senha alterada com sucesso!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        setSenhaAtual(""); // Limpa o campo de senha atual após a alteração
+      } else {
+        toast.update(loadingToast, {
+          render: "Erro ao alterar senha.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      toast.error("Erro de rede ou servidor.");
+      console.error(error); // Para depuração, pode ser útil
     }
   };
-
+  
   useEffect(() => {
     const carregarDadosUsuario = async () => {
       if (!session?.user?.id || !session?.user?.accessToken) return;
@@ -261,27 +275,27 @@ export default function MeuPerfil() {
   return (
     <main className="flex flex-col p-6 items-center">
       <div className="flex w-full max-w-5xl gap-8">
-      <div className="flex flex-col items-center">
-      <div
-        onClick={handleAvatarClick}
-        className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden cursor-pointer hover:opacity-80"
-      >
-        {avatar ? (
-          <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full text-gray-500">
-            Clique para adicionar
+        <div className="flex flex-col items-center">
+          <div
+            onClick={handleAvatarClick}
+            className="w-32 h-32 rounded-full bg-gray-200 overflow-hidden cursor-pointer hover:opacity-80"
+          >
+            {avatar ? (
+              <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full text-gray-500">
+                Clique para adicionar
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <input
-        type="file"
-        accept="image/*"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-      />
-    </div>
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+           // onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
 
         <div className="w-full bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           {/* Formulário Dados Pessoais */}
@@ -294,7 +308,7 @@ export default function MeuPerfil() {
               <InputField label="Email" name="email" value={formData.email} disabled className="col-span-2" />
               <InputField label="Primeiro Nome" name="primeiroNome" value={formData.primeiroNome} onChange={handleChange} className="col-span-2" required />
               <InputField label="Último Nome" name="ultimoNome" value={formData.ultimoNome} onChange={handleChange} className="col-span-2" required />
-              <InputField label="CPF" name="cpf" value={formData.cpf} onChange={(e) => setFormData({ ...formData, cpf: formatarCPF(e.target.value) })} className="col-span-2" required />
+              <InputField label="CPF" name="cpf" value={formData.cpf} onChange={(e) => setFormData({ ...formData, })} className="col-span-2" required />
 
               <InputField label="Data de Nascimento" type="date" name="dataNascimento" value={formData.dataNascimento} onChange={handleChange} />
               <SelectField label="Sexo" name="sexo" value={formData.sexo} onChange={handleChange} required />
@@ -343,12 +357,11 @@ export default function MeuPerfil() {
         </div>
       </div>
     </main>
-    
+
 
   );
 }
 
-// Componentes Auxiliares
 function InputField({ label, className, error, ...props }: InputFieldProps) {
   return (
     <div className={className || ""}>

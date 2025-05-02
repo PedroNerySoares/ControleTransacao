@@ -1,20 +1,15 @@
 "use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import foto from '../../public/avatar.jpeg';
 
 const menuItems = [
   { label: 'Home', href: '/importacao', roles: ['Administrador', 'Financeiro'] },
   { label: 'Usuário', href: '/usuarios', roles: ['Administrador'] },
   { label: 'Suspeitas', href: '/suspeita', roles: ['Administrador', 'Financeiro'] },
-  // { label: 'Dashboard', href: '/dashboard', roles: ['Administrador', 'Usuario'] },
-  // { label: 'Gerenciar Usuários', href: '/admin/users', roles: ['Administrador'] },
-  // { label: 'Configurações', href: '/admin/settings', roles: ['Administrador'] },
-  // { label: 'Meu Perfil', href: '/perfil', roles: ['Usuario'] },
-  // { label: 'Ajuda', href: '/ajuda', roles: ['Administrador', 'Usuario', 'Outro'] },
 ];
 
 export default function Navbar() {
@@ -37,9 +32,13 @@ export default function Navbar() {
     setIsOpen(false);
   }
 
-  const filteredMenu = menuItems.filter(item => item.roles.includes(session?.user?.role));
-console.log(session?.user.role)
-console.log(filteredMenu)
+  // Correção: fallback caso role seja undefined
+  const userRole = session?.user?.role ?? '';
+  const filteredMenu = menuItems.filter(item => item.roles.includes(userRole));
+
+  // Correção: imagem padrão se não houver foto
+  const foto = session?.user?.image ?? '/default-avatar.png'; // coloque esta imagem na pasta /public
+
   return (
     <>
       {isClient && (
@@ -48,7 +47,7 @@ console.log(filteredMenu)
             <h1 className="text-2xl font-bold text-gray-800">
               <Link href="/importacao">Meu Site</Link>
             </h1>
- 
+
             <ul className="hidden md:flex items-center space-x-8 text-gray-700 font-medium">
               {filteredMenu.map((item, index) => (
                 <li key={index}>
@@ -57,13 +56,19 @@ console.log(filteredMenu)
                   </Link>
                 </li>
               ))}
- 
+
               <div className="relative">
                 <button
                   onClick={() => setIsDropdownOpen(prev => !prev)}
                   className="flex items-center text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300"
                 >
-                  <Image className="w-8 h-8 rounded-full" src={foto} alt="user photo" />
+                  <Image
+                    className="w-8 h-8 rounded-full"
+                    src={foto}
+                    width={100}
+                    height={100}
+                    alt="user photo"
+                  />
                 </button>
 
                 <div className={`absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg divide-y divide-gray-100 z-50 ${isDropdownOpen ? 'block' : 'hidden'}`}>
@@ -92,7 +97,6 @@ console.log(filteredMenu)
               </div>
             </ul>
 
-            {/* Botão mobile */}
             <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -100,7 +104,6 @@ console.log(filteredMenu)
             </button>
           </div>
 
-          {/* Mobile Menu */}
           <div className={`md:hidden fixed top-0 left-0 w-full h-full bg-white z-40 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex justify-between items-center p-4 border-b">
               <h2 className="text-xl font-semibold text-gray-800">Menu</h2>

@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
-import GridImportacao from "@/app/components/gridImportacao";
-import GridSuspeita from "@/app/components/gridSuspeita";
+import GridImportacao from "@/app/components/GridImportacao";
+import GridSuspeita from "@/app/components/GridSuspeita";
 
 import { IMovimentacao } from "@/app/interfaces/Imovimentacao";
 import { ITransacao } from "@/app/interfaces/ITransacao";

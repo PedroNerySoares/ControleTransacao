@@ -28,7 +28,7 @@ import java.util.UUID;
 @RequestMapping("/imagens")
 public class ImagemController {
 
-    private static final String UPLOAD_DIR = "C:/Users/pedro/OneDrive/Imagens/imagesFTP";
+    private static final String UPLOAD_DIR = "//SERVIDOR/upload2";
 
     @Autowired
     ImageRepository imageRepository;
@@ -37,7 +37,7 @@ public class ImagemController {
     UsuarioRepository usuarioRepository;
 
     @PostMapping("/upload")
-    public void uploadImagem(@RequestParam("file") MultipartFile file, @RequestParam("idTeam") Long idTeam) throws IOException {
+    public void uploadImagem(@RequestParam("file") MultipartFile file, @RequestParam("idUser") Long idUser) throws IOException {
 
         String nameFile = file.getOriginalFilename();
         String extensao = nameFile.substring(nameFile.lastIndexOf("."));
@@ -66,9 +66,9 @@ public class ImagemController {
             // throw new RuntimeException("Erro ao salvar o arquivo", e);
         }
 
-        Optional<Usuario> t1 = usuarioRepository.findById(idTeam);
+        Optional<Usuario> t1 = usuarioRepository.findById(idUser);
         if (t1.isPresent()) {
-            ImageModel im1 = new ImageModel(null,fileName,"1",LocalDateTime.now());
+            ImageModel im1 = new ImageModel(t1.get(),fileName,"1",LocalDateTime.now());
 
             imageRepository.save(im1);
 

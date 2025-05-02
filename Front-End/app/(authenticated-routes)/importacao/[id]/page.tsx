@@ -1,35 +1,35 @@
 "use client";
-import GridImportacao from "@/app/components/gridImportacao";
-import { ITransacaoDetalhe } from "@/app/interfaces/ITransacaoDetalhe";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+
+import GridImportacao from "@/app/components/GridImportacao";
+import { ITransacaoDetalhe } from "@/app/interfaces/ITransacaoDetalhe";
+import { getArquivoDetalhes } from "@/libs/fetchsApi";
 
 export default function ImportacaoId() {
   const [transacaoDetalhe, setTransacaoDetalhe] = useState<ITransacaoDetalhe>();
   const params = useParams<{ id: string }>();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const token = session?.user?.accessToken;
 
-  async function fetchData() {
-    const response = await fetch(`http://192.168.0.135:8080/arquivo/${params.id}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Erro na requisição");
-    }
-
-    const data = await response.json();
-    setTransacaoDetalhe(data);
-  }
-
   useEffect(() => {
-    if (token) fetchData();
-  }, [token]);
+    const carregarDetalhes = async () => {
+      if (token && params.id) {
+        try {
+          const response = await getArquivoDetalhes(token, params.id);
+          const data = await response.json();
+          setTransacaoDetalhe(data);
+        } catch (error) {
+          console.error("Erro ao buscar detalhes do arquivo:", error);
+        }
+      }
+    };
+
+    if (status === "authenticated") {
+      carregarDetalhes();
+    }
+  }, [token, params.id, status]);
 
   return (
     <main className="flex flex-col gap-2 p-4">
@@ -39,7 +39,7 @@ export default function ImportacaoId() {
       <input
         type="text"
         className="w-full md:w-3/12 rounded-md"
-        value={transacaoDetalhe?.dataImportacao.toString() || ""}
+        value={transacaoDetalhe?.dataImportacao?.toString() || ""}
         disabled
       />
 
@@ -55,10 +55,11 @@ export default function ImportacaoId() {
       <input
         type="text"
         className="w-full md:w-3/12 rounded-md"
-        value={transacaoDetalhe?.dataTransacao.toString() || ""}
+        value={transacaoDetalhe?.dataTransacao?.toString() || ""}
         disabled
       />
-      <GridImportacao data={transacaoDetalhe?.transacao||[]}/>
+
+      <GridImportacao data={transacaoDetalhe?.transacao || []} />
     </main>
   );
 }

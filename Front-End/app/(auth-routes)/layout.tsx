@@ -4,7 +4,8 @@ import { Inter } from "next/font/google";
 import '../globals.css';
 import NextAuthSessionProvider from "@/app/provider/sessionProvider";
 import { getServerSession } from "next-auth";
-import { nextAuthOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions as nextAuthOptions } from "@/libs/authOptions";
+
 import { redirect } from "next/navigation";
 import { ToastContainer } from "react-toastify";
 

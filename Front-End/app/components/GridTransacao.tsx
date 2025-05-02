@@ -1,5 +1,5 @@
  
-import { ITransacao } from "../Interfaces/ITransacao";
+import { ITransacao } from "@/app/interfaces/ITransacao"
 interface PropsData{
     data?:ITransacao[],
 }

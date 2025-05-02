@@ -8,18 +8,7 @@ import { IUsuario } from "@/app/interfaces/IUsuario";
 
 const BASEURL = "http://192.168.0.135:8080";
 
-export async function PostUploadImg(token:string,data:any){
-  const response = await fetch(`${BASEURL}/imagens/upload`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-     
-    },
-    
-    body:data 
-  });
-  return await response;
-}
+
 // ***************** Requisções Login ************************>>
 export async function PostResetPassword(email: String) {
   const response = await fetch(`${BASEURL}/login/reset`, {
@@ -50,7 +39,7 @@ export async function getUsuarios(token: string) {
 
   return await response.json();
 }
-export async function getDataUser(token: string, idUser: number) {
+export async function getDataUser(token: string, idUser: String) {
 
   const response = await fetch(`${BASEURL}/usuario/${idUser}`, {
     method: "get",
@@ -82,7 +71,7 @@ export async function postCreateUser(token: string, { id, email, usuario, author
   });
   return await response;
 }
-export async function putChangeDatasUser(token: string, idUser: number, data: IChangeDatasUser) {
+export async function putChangeDatasUser(token: string, idUser: String, data: IChangeDatasUser) {
 
   const response = await fetch(`${BASEURL}/usuario/settingsUser/${idUser}`, {
     method: "PUT",
@@ -97,10 +86,10 @@ export async function putChangeDatasUser(token: string, idUser: number, data: IC
       cpf: data.cpf,
       dateNascimento: data.dataNascimento,
       sexo: data.sexo,
-      numero: data.numero,           
-      complemento: data.complemento, 
-      bairro: data.bairro,           
-      estado: data.estado,           
+      numero: data.numero,
+      complemento: data.complemento,
+      bairro: data.bairro,
+      estado: data.estado,
       cep: data.cep,
       rua:data.rua,
       municipio:data.municipio
@@ -111,7 +100,7 @@ export async function putChangeDatasUser(token: string, idUser: number, data: IC
   return response
 
 }
-export async function putChangePassword(token: string, idUser: number, data: IChangePassword) {
+export async function putChangePassword(token: string, idUser: String, data: IChangePassword) {
 
 
   const response = await fetch(`${BASEURL}/usuario/${idUser}`, {
@@ -130,7 +119,7 @@ export async function putChangePassword(token: string, idUser: number, data: ICh
 
   return await response;
 }
-export async function deleteUser(token: string, idUser: number) {
+export async function deleteUser(token: string, idUser: String) {
 
 
   const response = await fetch(`${BASEURL}/usuario/${idUser}`, {
@@ -177,7 +166,7 @@ export async function getArquivo(token: string) {
   });
 
 
-  return await response;
+  return await response.json();
 
 }
 export async function getDatasTransacao(token: String) {
@@ -225,6 +214,19 @@ export async function deleteArquivo(token: String, idArquivo: String) {
 
 
 // ********************* Requisções Transação **************************>>
+export async function getArquivoDetalhes(token: string, idArquivo: string) {
+
+  const response = await fetch(`${BASEURL}/arquivo/${idArquivo}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+ 
+  return response ;
+}
+
+
 export async function getTransacaoSuspeita(token: string, dtmesref: string) {
 
   const response = await fetch(`${BASEURL}/transacao/suspeita/${dtmesref}`, {
@@ -263,3 +265,17 @@ export async function getTransacaoAgenciaSuspeita(token: string, dtmesref: strin
   return await response.json();
 }
 // <<*******************************************************************>>
+
+
+export async function PostUploadImg(token: string, data: any) {
+  const response = await fetch(`${BASEURL}/imagens/upload`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+
+    },
+
+    body: data
+  });
+  return await response;
+}

@@ -8,10 +8,7 @@ import { IUsuario } from "@/app/interfaces/IUsuario";
 import { getRoles, getUsuarios, postCreateUser } from "@/libs/fetchsApi";
 import { toast, ToastContainer } from "react-toastify";
 
-interface IRole {
-  id: number;
-  nome: string;
-}
+
 
 export default function Usuarios() {
   const { data: session, status } = useSession();
@@ -33,27 +30,44 @@ export default function Usuarios() {
 
   const carregarUsuarios = async () => {
     const token = session?.user.accessToken;
+  
+    if (!token) { 
+      toast.error("Access token não disponível!");
+      return;
+    }
+  
     const data = await getUsuarios(token);
-
     setUsuarios(data || []);
   };
-
+  
   const carregarRoles = async () => {
     const token = session?.user.accessToken;
+  
+    if (!token) { 
+      toast.error("Access token não disponível!");
+      return;
+    }
+  
     const data = await getRoles(token);
     const rolesJson = await data.json();
     setRolesDisponiveis(rolesJson || []);
   };
 
   const handleAdicionarUsuario = async () => {
-
+    const token = session?.user.accessToken;
+  
+    if (!token) {
+      toast.error("Access token não disponível!");
+      return;
+    }
+  
     const toastId = toast.loading("Criando usuário...");
-    const resp = await postCreateUser(session?.user.accessToken, {
-      id: 0,
+    const resp = await postCreateUser(token, {
+     
       email: novoEmail,
       usuario: novoUsuario,
-
     }, Number(roleSelecionada));
+  
     if (resp.ok) {
       toast.update(toastId, {
         render: "Usuário criado com sucesso!",
@@ -61,24 +75,22 @@ export default function Usuarios() {
         isLoading: false,
         autoClose: 3000,
       });
-
-    }
-    else {
+    } else {
       toast.update(toastId, {
         render: "Erro ao criar usuário!",
         type: "error",
         isLoading: false,
         autoClose: 3000,
       });
-
     }
-
+  
     setShowModal(false);
     setNovoEmail("");
     setNovoUsuario("");
     setRoleSelecionada("0");
     carregarUsuarios();
   };
+  
 
   const renderModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

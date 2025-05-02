@@ -3,10 +3,10 @@ import { ITransacao } from "./ITransacao";
 
 export interface IUsuario {
 
-    id:String,
-    usuario: string
+    id?:String,
+    usuario: String
     email: String, 
-    authorities: Authority[];
+    authorities?: Authority[];
     // dataTransacao: Date,
     // transacao: ITransacao[];
 

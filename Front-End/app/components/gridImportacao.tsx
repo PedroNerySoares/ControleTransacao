@@ -34,7 +34,7 @@ export default function GridImportacao({ data }: propsArquivo) {
         </TableHead>
         <tbody>
           {data.map((data, index) => (
-            <TableRow index={index}   >
+            <TableRow index={index} key={index}   >
               <TableCell className="">{data.bancoOrigem}</TableCell>
               <TableCell >{data.agenciaOrigem}</TableCell>
               <TableCell >{data.contaOrigem}</TableCell>

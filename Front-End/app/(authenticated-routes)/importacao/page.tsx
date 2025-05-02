@@ -14,21 +14,24 @@ import { ITransacao } from "@/app/interfaces/ITransacao";
 
 export default function Importacao() {
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null);
-  const [importadoComSucesso, setImportadoComSucesso] = useState(false);
+ 
   const [arquivosImportados, setArquivosImportados] = useState<IArquivos[]>([]);
 
   const { data: session, status } = useSession();
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.accessToken) {
-      carregarArquivos();
+      carregarArquivos(session.user.accessToken);
     }
   }, [status, session]);
 
-  const carregarArquivos = async () => {
-    const token = session?.user.accessToken;
-    const dados = await getArquivo(token);
-    setArquivosImportados(dados);
+  const carregarArquivos = async (token: string) => {
+    try {
+      const dados = await getArquivo(token);
+      setArquivosImportados(dados);
+    } catch (error) {
+      toast.error("Erro ao carregar os arquivos importados.");
+    }
   };
 
   const handleArquivoSelecionado = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,9 +43,14 @@ export default function Importacao() {
 
   const handleImportar = async () => {
     if (!arquivoSelecionado) return;
+    const token = session?.user?.accessToken;
+
+    if (!token) {
+      toast.error("Sessão inválida ou expirada. Faça login novamente.");
+      return;
+    }
 
     const { name, type, size } = arquivoSelecionado;
-
     const isCSV = type === "text/csv" || name.endsWith(".csv");
     const isXML = type === "text/xml" || name.endsWith(".xml");
 
@@ -52,12 +60,10 @@ export default function Importacao() {
 
     const enviarDados = async () => {
       try {
-         const token = session?.user.accessToken;
-        const response = await PostArquivo(token,name,size,dadosImportados)
+        const response = await PostArquivo(token, name, size, dadosImportados);
 
-        if (response.ok) {
-          setImportadoComSucesso(true);
-          await carregarArquivos();
+        if (response.ok) { 
+          await carregarArquivos(token);
           toast.update(toastId, {
             render: "Arquivo importado com sucesso!",
             type: "success",
