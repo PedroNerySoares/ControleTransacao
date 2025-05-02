@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
-import GridImportacao from "@/app/components/GridImportacao";
 import GridSuspeita from "@/app/components/GridSuspeita";
 
 import { IMovimentacao } from "@/app/interfaces/Imovimentacao";
@@ -15,7 +14,7 @@ import {
   getTransacaoContaSuspeita,
   getTransacaoSuspeita,
 } from "@/libs/fetchsApi";
-
+import GridImportacao from "@/app/components/GridImportacao";
 const formatCompetencia = (yyyymm: string): string => {
   const ano = yyyymm.slice(0, 4);
   const mes = yyyymm.slice(4, 6);
