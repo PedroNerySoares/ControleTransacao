@@ -2,10 +2,9 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-
-import GridImportacao from "@/app/components/GridImportacao";
 import { ITransacaoDetalhe } from "@/app/interfaces/ITransacaoDetalhe";
 import { getArquivoDetalhes } from "@/libs/fetchsApi";
+import GridImportacao from "@/app/components/GridImportacao";
 
 export default function ImportacaoId() {
   const [transacaoDetalhe, setTransacaoDetalhe] = useState<ITransacaoDetalhe>();
