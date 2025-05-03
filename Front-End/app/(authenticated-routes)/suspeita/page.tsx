@@ -14,7 +14,7 @@ import {
   getTransacaoContaSuspeita,
   getTransacaoSuspeita,
 } from "@/libs/fetchsApi";
-import GridImportacao from "@/app/components/GridImportacao";
+import GridImportacao from "../../components/GridImportacao";
 const formatCompetencia = (yyyymm: string): string => {
   const ano = yyyymm.slice(0, 4);
   const mes = yyyymm.slice(4, 6);
