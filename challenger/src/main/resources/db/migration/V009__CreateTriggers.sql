@@ -12,7 +12,7 @@ CREATE TABLE `hiusuario` (
 DELIMITER $$
 
 CREATE TRIGGER after_update_usuario
-AFTER UPDATE ON usuario
+AFTER UPDATE ON usuarios
 FOR EACH ROW
 BEGIN
     DECLARE trx_id VARCHAR(36);
@@ -33,9 +33,9 @@ BEGIN
         VALUES (OLD.id, 'ultimoNome', OLD.ultimoNome, NEW.ultimoNome, NOW(), trx_id);
     END IF;
 
-    IF NOT OLD.dateNascimento <=> NEW.dateNascimento THEN
+    IF NOT OLD.dataNascimento <=> NEW.dataNascimento THEN
         INSERT INTO hiusuario (usuario_id, campo_modificado, valor_antigo, valor_novo, atualizado_em, transacao_id)
-        VALUES (OLD.id, 'dateNascimento', OLD.dateNascimento, NEW.dateNascimento, NOW(), trx_id);
+        VALUES (OLD.id, 'dataNascimento', OLD.dataNascimento, NEW.dataNascimento, NOW(), trx_id);
     END IF;
 
     IF NOT OLD.CPF <=> NEW.CPF THEN

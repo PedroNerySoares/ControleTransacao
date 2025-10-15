@@ -21,9 +21,24 @@ CREATE TABLE transacao (
   PRIMARY KEY (ID));
 
   
-  CREATE TABLE `usuario` (
-  `id` INT NOT NULL  AUTO_INCREMENT,
-  `usuario` VARCHAR(45) NULL,
-  `email` VARCHAR(45) NULL,
-  PRIMARY KEY (`id`));
-  
+CREATE TABLE usuarios (
+    id int AUTO_INCREMENT PRIMARY KEY,
+    usuario VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL,
+    status ENUM('S', 'N') DEFAULT 'S',
+
+    primeiroNome VARCHAR(100),
+    ultimoNome VARCHAR(100),
+    cpf VARCHAR(14) UNIQUE,
+    dataNascimento DATE,
+    sexo CHAR(1),
+
+    cep VARCHAR(9),
+    bairro VARCHAR(100),
+    complemento VARCHAR(100),
+    estado VARCHAR(2),
+    rua VARCHAR(150),
+    numero VARCHAR(20),
+    municipio VARCHAR(100)
+);

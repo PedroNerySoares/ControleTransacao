@@ -1,12 +1,4 @@
 
-  ALTER TABLE `transacao`.`usuario`
-  ADD COLUMN `primeiroNome` VARCHAR(45) NULL AFTER `senha`,
-  ADD COLUMN `ultimoNome` VARCHAR(45) NULL AFTER `primeiroNome`,
-  ADD COLUMN `dateNascimento` VARCHAR(45) NULL AFTER `ultimoNome`,
-  ADD COLUMN `CPF` VARCHAR(45) NULL AFTER `dateNascimento`,
-  ADD COLUMN `sexo` VARCHAR(45) NULL AFTER `CPF`;
-
-
 
 
   CREATE TABLE `roles` (
@@ -20,7 +12,7 @@
     usuario_id INT,
     role_id INT,
     createdAt date,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
     FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 

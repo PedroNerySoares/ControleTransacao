@@ -10,7 +10,7 @@ public class jdbcConfig {
 	
 	public Connection createConnection() throws SQLException{
 
-		String url_conexao = System.getenv("BD-URL") ;
+		String url_conexao = "jdbc:mysql://192.168.0.12:3306/transacao?useSSL=false&allowPublicKeyRetrieval=true" ;
 
 		String url_user=System.getenv("BD-USER");
 

@@ -8,15 +8,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import br.com.alura.challenger.repositories.UsuarioRepository;
-import br.com.alura.challenger.services.TokenService;
+import br.com.alura.challenger.usuario.UsuarioRepository;
+import br.com.alura.challenger.commons.TokenService;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
