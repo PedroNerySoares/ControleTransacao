@@ -8,6 +8,7 @@ import br.com.alura.challenger.commons.EnviarEmail;
 import br.com.alura.challenger.commons.GerarSenhaAleatoriaService;
 import br.com.alura.challenger.usuario.DTOS.CreateNewUserDTO;
 import br.com.alura.challenger.usuario.DTOS.UserDetailsDTO;
+import br.com.alura.challenger.usuario.DTOS.UserMeDetails;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,12 +34,9 @@ public class UsuarioServices extends ConvertAbstract {
     private GerarSenhaAleatoriaService geraSenhaAleatoria;
 
 
-
     public UsuarioServices(ModelMapper modelMapper) {
         super(modelMapper);
     }
-
-
     public UsuarioModel getUserById(Long idUser) {
         UsuarioModel userId = usuarioRepository.findById(idUser)
                 .orElseThrow(() -> new RuntimeException("Usuário não localizado!"));
@@ -46,20 +44,26 @@ public class UsuarioServices extends ConvertAbstract {
 
 
     }
-
-    public List<UsuarioModel> getAllUser() {
+    private List<UsuarioModel> getAllUser() {
         return usuarioRepository.findAll().stream().filter((user) -> !user.getUsuario().equals("Admin")
                         && user.isEnabled())
                 .toList();
     }
 
-    public List<UserDetailsDTO> getAllUserAction() {
+
+    /// ////////////////////////////////////////////////////////////////////////////
+    protected List<UserDetailsDTO> getAllUserAction() {
 
         return convertToDTOList(getAllUser(), UserDetailsDTO.class);
     }
+    public UserMeDetails getUserInfo(Long idUser) {
+
+        return convertToDTO(this.getUserById(idUser)
+                , UserMeDetails.class);
 
 
-    public UsuarioModel creatNewUser(CreateNewUserDTO usuarioDTO) throws MessagingException {
+    }
+    protected UsuarioModel creatNewUser(CreateNewUserDTO usuarioDTO) throws MessagingException {
 
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()).isPresent()) {
             throw new MessagingException("Email já cadastrado!");

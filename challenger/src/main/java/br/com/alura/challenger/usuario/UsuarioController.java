@@ -8,18 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import br.com.alura.challenger.config.SecurityFilter;
-import br.com.alura.challenger.usuario.DTOS.AlterarUsuarioDto;
+import br.com.alura.challenger.usuario.DTOS.*;
 import br.com.alura.challenger.roles.RolesRepository;
 import br.com.alura.challenger.commons.TokenService;
-import br.com.alura.challenger.usuario.DTOS.CreateNewUserDTO;
-import br.com.alura.challenger.usuario.DTOS.UserDetailsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import br.com.alura.challenger.usuario.DTOS.AlterarPasswordUsuarioDto;
 import br.com.alura.challenger.commons.CriptografiaService;
 import br.com.alura.challenger.commons.EnviarEmail;
 import br.com.alura.challenger.commons.GerarSenhaAleatoriaService;
@@ -70,16 +67,22 @@ public class UsuarioController {
     }
 
     @GetMapping("/me")
-    private ResponseEntity<Optional<UsuarioModel>> listarUsuarioId(HttpServletRequest request) {
+    private ResponseEntity<UserMeDetails> listarUsuarioLogadoId(HttpServletRequest request) {
 
         Long idUser = (long) Integer.parseInt(tokenService.getSubejectId(securityFilter.recuperarToken(request)));
-
-        Optional<UsuarioModel> user = usuarioRepository.findById(idUser);
-
+        UserMeDetails user = usuarioServices.getUserInfo(idUser);
         return ResponseEntity.ok().body(user);
-//        return ResponseEntity.ok().body(usuarioServices.getUserById(user));
 
     }
+
+    @GetMapping("/{idUser}")
+    private ResponseEntity<UserMeDetails> listarUsuarioId(@PathVariable Long idUser) {
+
+        UserMeDetails user = usuarioServices.getUserInfo(idUser);
+        return ResponseEntity.ok().body(user);
+
+    }
+
 
 
     @DeleteMapping("/{id}")
