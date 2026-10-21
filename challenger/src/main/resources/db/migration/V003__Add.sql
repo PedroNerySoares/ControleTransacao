@@ -1,3 +1,3 @@
-ALTER TABLE `arquivo` 
-ADD COLUMN `dttrans` DATE NULL ;
+ALTER TABLE arquivo
+ADD dttrans DATE NULL;
 

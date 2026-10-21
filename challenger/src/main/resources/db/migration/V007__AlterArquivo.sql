@@ -1,3 +1,3 @@
-ALTER TABLE `arquivo`
-CHANGE COLUMN `nrtamarq` `nrtamarq` INT NULL DEFAULT NULL ;
+ALTER TABLE arquivo
+ALTER COLUMN nrtamarq INT NULL;
 

@@ -1,2 +1,0 @@
-ALTER TABLE usuarios_roles
-MODIFY COLUMN createdAt DATE DEFAULT (CURRENT_DATE);
