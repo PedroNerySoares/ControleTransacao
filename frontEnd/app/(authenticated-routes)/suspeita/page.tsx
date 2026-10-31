@@ -1,123 +1,208 @@
-'use client';
 
-import { useEffect, useState, useCallback } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { Search } from "lucide-react";
 
-import GridImportacao from "@/app/components/gridImportacao";
-import GridSuspeita from "@/app/components/gridSuspeita";
-
-import { IMovimentacao } from "@/app/interfaces/Imovimentacao";
-import { ITransacao } from "@/app/interfaces/ITransacao";
+import { Button } from "@/app/components/ui/button";
+import { Badge } from "@/app/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+import { PageHeader, Panel } from "@/app/components/page-header";
+import { TransacoesTable } from "@/app/components/transacoes-table";
 
 import {
-  getDatasTransacao,
-  getTransacaoAgenciaSuspeita,
-  getTransacaoContaSuspeita,
-  getTransacaoSuspeita,
-} from "@/libs/fetchsApi";
+  agenciasSuspeitas,
+  brl,
+  contasSuspeitas,
+  transacoesSuspeitas,
+  type ContaSuspeita,
+} from "@/app/lib/mock-data";
 
-const formatCompetencia = (yyyymm: string): string => {
-  const ano = yyyymm.slice(0, 4);
-  const mes = yyyymm.slice(4, 6);
-  const nomesMeses = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ];
+import { getAnoMes, getTransacaoAgenciaSuspeita, getTransacaoContaSuspeita, getTransacaoSuspeita } from "@/app/services/api";
+import { toast } from "sonner";
+import { IMovimentacao, ITransacao } from "@/app/types/transacao";
+import { MesAno } from "@/app/types/arquivo";
 
-  return `${nomesMeses[parseInt(mes) - 1]}/${ano}`;
-};
-
-export default function Suspeita() {
+export default function Suspeitas() {
+  const [comp, setComp] = useState("");
+  const [busca, setBusca] = useState("");
+  const [competencias, setCompetencias] = useState<MesAno[]>([]);
+  const [carregando, setCarregando] = useState(true);
   const [transacoesSuspeitas, setTransacoesSuspeitas] = useState<ITransacao[]>([]);
   const [contasSuspeitas, setContasSuspeitas] = useState<IMovimentacao[]>([]);
   const [agenciasSuspeitas, setAgenciasSuspeitas] = useState<IMovimentacao[]>([]);
 
-  const [competencia, setCompetencia] = useState<string>("");
-  const [competenciasDisponiveis, setCompetenciasDisponiveis] = useState<string[]>([]);
+  const { data: session } = useSession();
+  const token = session?.user.accessToken;
 
-  const { data: session, status } = useSession();
 
   useEffect(() => {
-    const carregarDatas = async () => {
-      if (status !== 'authenticated') return;
-      const datas = await getDatasTransacao(session?.user?.accessToken);
-      setCompetenciasDisponiveis(datas || []);
+    if (!token) return;
+
+    let isMounted = true;
+
+    getAnoMes(token)
+      .then((data: MesAno[]) => {
+        if (isMounted) {
+          setCompetencias(data);
+        }
+      })
+      .catch((error: unknown) => {
+        if (isMounted) {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : "Não foi possível carregar as competências."
+          );
+        }
+      })
+      .finally(() => {
+        if (isMounted) {
+          setCarregando(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
     };
+  }, [token]);
 
-    carregarDatas();
-  }, [status, session]);
-
-  const fetchSuspeitas = useCallback(async () => {
-    if (!session?.user?.accessToken || !competencia) return;
+  async function fetchInfos() {
+    if (!token) return;
 
     try {
-      const [
-        transacaoSuspeita,
-        contaSuspeita,
-        agenciaSuspeita
-      ] = await Promise.all([
-        getTransacaoSuspeita(session.user.accessToken, competencia),
-        getTransacaoContaSuspeita(session.user.accessToken, competencia),
-        getTransacaoAgenciaSuspeita(session.user.accessToken, competencia)
-      ]);
-
-      setTransacoesSuspeitas(transacaoSuspeita || []);
-      setContasSuspeitas(contaSuspeita || []);
-      setAgenciasSuspeitas(agenciaSuspeita || []);
+      const data = await getTransacaoSuspeita(token, comp);
+      setTransacoesSuspeitas(data);
+      setBusca(comp);
     } catch (error) {
-      console.error("Erro ao buscar dados suspeitos:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível carregar as transações suspeitas.",
+      );
     }
-  }, [session, competencia]);
+  }
+  function buscar() {
+    // setBusca(comp);
+  }
 
   return (
-    <main className="p-4">
-      {/* Seletor de Competência */}
-      <div className="flex flex-col sm:flex-row sm:items-start mb-6 gap-4">
-        <select
-          value={competencia}
-          onChange={(e) => setCompetencia(e.target.value)}
-          className="border border-gray-300 rounded-md p-2"
-        >
-          <option value="">Selecione uma competência</option>
-          {competenciasDisponiveis.map((comp) => (
-            <option key={comp} value={comp}>
-              {formatCompetencia(comp)}
-            </option>
-          ))}
-        </select>
+    <>
+      <PageHeader
+        title="Suspeitas"
+        description={
+          busca
+            ? `Resultados para ${busca}`
+            : "Escolha uma competência para analisar."
+        }
+        actions={
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Select
+              value={comp}
+              onValueChange={setComp}
+              disabled={carregando || competencias.length === 0}
+            >
+              <SelectTrigger className="w-full bg-card sm:w-56">
+                <SelectValue
+                  placeholder={
+                    carregando
+                      ? "Carregando competências..."
+                      : "Selecione a competência"
+                  }
+                />
+              </SelectTrigger>
 
-        <button
-          onClick={fetchSuspeitas}
-          disabled={!competencia}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50"
-        >
-          Buscar
-        </button>
+              <SelectContent>
+                {competencias.map((c) => (
+                  <SelectItem key={c.mesAno} value={c.anoMes}>
+                    {c.mesAno}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Button disabled={!comp} onClick={fetchInfos}>
+              <Search />
+              Buscar
+            </Button>
+          </div>
+        }
+      />
+
+
+
+      <div className="space-y-6">
+        <Panel title="Transações suspeitas">
+          <TransacoesTable
+            data={busca ? transacoesSuspeitas : []}
+            destaque="destructive"
+          />
+        </Panel>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Panel title="Contas suspeitas">
+            <MovTable data={busca ? contasSuspeitas : []} conta />
+          </Panel>
+
+          <Panel title="Agências suspeitas">
+            <MovTable data={busca ? agenciasSuspeitas : []} />
+          </Panel>
+        </div>
       </div>
+    </>
+  );
+}
 
-      {/* Grid Transações Suspeitas */}
-      <section className="mb-8">
-        <h1 className="text-xl font-bold mb-2">Transações Suspeitas</h1>
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <GridImportacao data={transacoesSuspeitas} />
-        </div>
-      </section>
+function MovTable({
+  data,
+  conta,
+}: {
+  data: ContaSuspeita[];
+  conta?: boolean;
+}) {
+  if (!data.length) {
+    return (
+      <p className="p-8 text-center text-sm text-muted-foreground">
+        Nenhum resultado ainda.
+      </p>
+    );
+  }
 
-      {/* Grid Contas Suspeitas */}
-      <section className="mb-8">
-        <h2 className="text-xl font-bold mb-2">Contas Suspeitas</h2>
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <GridSuspeita data={contasSuspeitas} />
-        </div>
-      </section>
+  return (
+    <ul className="divide-y">
+      {data.map((d, i) => (
+        <li
+          key={i}
+          className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5"
+        >
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">{d.banco}</p>
+            <p className="text-xs text-muted-foreground">
+              Agência {d.agencia}
+              {conta && d.conta ? ` · Conta ${d.conta}` : ""}
+            </p>
+          </div>
 
-      {/* Grid Agências Suspeitas */}
-      <section>
-        <h2 className="text-xl font-bold mb-2">Agências Suspeitas</h2>
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <GridSuspeita data={agenciasSuspeitas} />
-        </div>
-      </section>
-    </main>
+          <div className="shrink-0 text-right">
+            <p className="text-sm font-semibold tabular-nums">
+              {brl(d.valor)}
+            </p>
+            <Badge
+              variant={d.tipo === "Entrada" ? "default" : "secondary"}
+              className="mt-1"
+            >
+              {d.tipo}
+            </Badge>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }

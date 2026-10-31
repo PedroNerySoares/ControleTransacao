@@ -1,366 +1,311 @@
 "use client";
 
-import { IChangeDatasUser } from "@/app/interfaces/iChangeDatasUser";
-import { getMe, putChangeDatasUser } from "@/libs/fetchsApi";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-import ImageAvatar from "../../../public/avatar.jpeg";
+import { toast } from "sonner";
+
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Avatar } from "@/app/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/app/components/ui/select";
+
+import { PageHeader, Panel } from "@/app/components/page-header";
+import type { UsuarioDetails } from "@/app/types/usuario";
+import { getMe } from "@/app/services/api";
+
+function Field({
+  label,
+  children,
+  className = "",
+}: {
+  label: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`space-y-2 ${className}`}>
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
 
 export default function SettingsUsuario() {
-  const [primeiroNome, setPrimeiroNome] = useState("");
-  const [ultimoNome, setUltimoNome] = useState("");
-  const [email, setEmail] = useState("usuario@email.com");
-  const [cpf, setCpf] = useState("");
-  const [dateNascimento, setDateNascimento] = useState("");
-  const [sexo, setSexo] = useState("");
-  const [cep, setCep] = useState("");
-  const [rua, setRua] = useState("");
-  const [numero, setNumero] = useState("");
-  const [complemento, setComplemento] = useState("");
-  const [municipio, setMunicipio] = useState("");
-  const [estado, setEstado] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [endereco, setEndereco] = useState("");
-  const [defaultData, setDefaultData] = useState<IChangeDatasUser>();
+  // Dados originais exibidos no perfil
+  const [me, setMe] = useState<UsuarioDetails | null>(null);
+
+  // Dados que estão sendo editados no formulário
+  const [meUpdate, setMeUpdate] = useState<UsuarioDetails | null>(null);
+
+  const [loading, setLoading] = useState(true);
+
   const { data: session } = useSession();
- 
+  const token = session?.user.accessToken;
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!session?.user?.accessToken) return;
+    if (!token) return;
+    const accessToken = token;
 
+    async function carregarUsuario() {
       try {
-        const userData = await getMe(session.user.accessToken);
- 
-        setPrimeiroNome(userData.primeiroNome || "");
-        setUltimoNome(userData.ultimoNome || "");
-        setEmail(userData.email || "");
-        setCpf(userData.cpf || "");
-        setDateNascimento(userData.dataNascimento || "");
-        setSexo(userData.sexo || "");
-        setCep(userData.cep || "");
-        setRua(userData.rua || "");
-        setNumero(userData.numero || "");
-        setComplemento(userData.complemento || "");
-        setMunicipio(userData.municipio || "");
-        setEstado(userData.estado || "");
-        setBairro(userData.bairro || "");
+        const response = await getMe(accessToken);
+        const data: UsuarioDetails = response;
 
+        setMe(data);
+        setMeUpdate(data);
       } catch (error) {
-        toast.error("Erro ao carregar dados do usuário.");
-        console.error("Erro ao buscar /usuario/me:", error);
+        console.error("Erro ao carregar usuário:", error);
+        toast.error(error instanceof Error ? error.message : "Erro ao carregar os dados do perfil.");
+      } finally {
+        setLoading(false);
       }
-    };
-
-    fetchUserData();
-  }, [session]);
-
-  const validarCPF = (cpf: string) => {
-    cpf = cpf.replace(/[^\d]+/g, "");
-    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
-    let soma = 0;
-    for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i);
-    let resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    if (resto !== parseInt(cpf.charAt(9))) return false;
-    soma = 0;
-    for (let i = 0; i < 10; i++) soma += parseInt(cpf.charAt(i)) * (11 - i);
-    resto = (soma * 10) % 11;
-    if (resto === 10 || resto === 11) resto = 0;
-    return resto === parseInt(cpf.charAt(10));
-  };
-
-  const handleBuscarCEP = async () => {
-    const cepLimpo = cep.replace(/\D/g, "");
-    if (cepLimpo.length !== 8) {
-      toast.warning("CEP inválido.");
-      return;
     }
 
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await res.json();
+    carregarUsuario();
+  }, [token]);
 
-      if (data.erro) {
-        toast.error("CEP não encontrado!");
-        return;
-      }
+  function atualizarCampo<K extends keyof UsuarioDetails>(
+    campo: K,
+    valor: UsuarioDetails[K]
+  ) {
+    setMeUpdate((usuarioAtual) =>
+      usuarioAtual
+        ? {
+          ...usuarioAtual,
+          [campo]: valor,
+        }
+        : usuarioAtual
+    );
+  }
 
-      
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
 
-      // Monta o endereço completo para enviar ao backend
-      setEndereco(`${data.logradouro}, ${bairro} - ${municipio}/${estado}`);
-    } catch {
-      toast.error("Erro ao buscar CEP.");
-    }
-  };
+    if (!meUpdate) return;
 
-  const handleSubmit = async () => {
-    if (!validarCPF(cpf)) {
-      toast.error("CPF inválido!");
-      return;
-    }
+    // Simulação de salvamento na interface.
+    // Substitua pela chamada de atualização da API quando implementá-la.
+    setMe({ ...meUpdate });
 
-    if (!primeiroNome || !ultimoNome || !dateNascimento || !sexo || !cep || !numero) {
-      toast.error("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    const dadosAtualizados: IChangeDatasUser = {
-      primeiroNome,
-      ultimoNome,
-      cpf,
-      dateNascimento,
-      sexo,
-      cep,
-      rua,
-      numero,
-      bairro,
-      complemento,
-      municipio,
-      estado,
-
-    };
-
-    const loadingToast = toast.loading("Salvando alterações...");
-
-    try {
-      const response = await putChangeDatasUser(
-        session?.user.accessToken,
-        session?.user.id,
-        dadosAtualizados
-      );
-
-      if (response?.ok) {
-        toast.update(loadingToast, {
-          render: "Alterações salvas com sucesso!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      } else {
-        toast.update(loadingToast, {
-          render: "Erro ao salvar alterações.",
-          type: "error",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      }
-    } catch {
-      toast.update(loadingToast, {
-        render: "Erro de rede ou servidor.",
-        type: "error",
-        isLoading: false,
-        autoClose: 3000,
-      });
-    }
-  };
-
-  // Máscara de CEP e CPF
-  const maskCep = (value: string) =>
-    value
-      .replace(/\D/g, "")
-      .replace(/(\d{5})(\d)/, "$1-$2")
-      .slice(0, 9);
-
-  const maskCpf = (value: string) =>
-    value
-      .replace(/\D/g, "")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-      .slice(0, 14);
+    toast.success("Perfil atualizado");
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center p-6">
-      <div className="mb-4">
-        <Image
-          src={ImageAvatar}
-          alt="Avatar do usuário"
-          width={100}
-          height={100}
-          className="rounded-full"
-        />
-      </div>
+    <>
+      <PageHeader
+        title="Meu perfil"
+        description="Mantenha seus dados atualizados."
+      />
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-        className="w-full max-w-2xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow"
-      >
-        {/* Primeiro Nome e Último Nome */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Primeiro Nome</label>
-            <input
-              type="text"
-              value={primeiroNome}
-              onChange={(e) => setPrimeiroNome(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Último Nome</label>
-            <input
-              type="text"
-              value={ultimoNome}
-              onChange={(e) => setUltimoNome(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        {/* Cartão do perfil: mostra os dados originais */}
+        <Panel>
+          <div className="flex flex-col items-center p-6 text-center">
+            <Avatar
+              className="h-32 w-32"
+              src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29_denoise.jpg/500px-Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29_denoise.jpg?utm_source=pt.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+              alt="Foto de perfil"
+              fallback={
+                <span className="bg-primary text-xs text-primary-foreground">
+                  PS
+                </span>
+              }
             />
 
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled
-              className="w-full p-2 border rounded"
-            />
-          </div>
+            <h2 className="mt-4 text-lg font-semibold">
+              {me
+                ? `${me.primeiroNome ?? ""} ${me.ultimoNome ?? ""}`.trim()
+                : "Carregando..."}
+            </h2>
 
-          {/* Sexo */}
-          <div className="mb-2">
-            <label className="block text-sm font-medium mb-1">Sexo</label>
-            <select
-              value={sexo}
-              onChange={(e) => setSexo(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
+            <p className="text-sm text-muted-foreground">
+              {me?.email ?? ""}
+            </p>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-4"
             >
-              <option value="">Selecione</option>
-              <option value="masculino">Masculino</option>
-              <option value="feminino">Feminino</option>
-              <option value="outro">Outro</option>
-              <option value="prefiro_nao_dizer">Prefiro não dizer</option>
-            </select>
+              Alterar foto
+            </Button>
           </div>
-        </div>
+        </Panel>
 
+        {/* Formulário: utiliza exclusivamente meUpdate */}
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <Panel title="Dados pessoais">
+            <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5">
+              <Field label="Primeiro nome">
+                <Input
+                  placeholder="Pedro"
+                  value={meUpdate?.primeiroNome ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("primeiroNome", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
 
-        {/* Data de Nascimento e CPF */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Data de Nascimento</label>
-            <input
-              type="date"
-              value={dateNascimento}
-              onChange={(e) => setDateNascimento(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
+              <Field label="Último nome">
+                <Input
+                  placeholder="Soares"
+                  value={meUpdate?.ultimoNome ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("ultimoNome", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="Email">
+                <Input
+                  type="email"
+                  placeholder="pedrohnery@gmail.com"
+                  value={meUpdate?.email ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("email", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="Sexo">
+                <Select
+                  value={meUpdate?.sexo ?? ""}
+                  onValueChange={(value) =>
+                    atualizarCampo(
+                      "sexo",
+                      value as UsuarioDetails["sexo"]
+                    )
+                  }
+                  disabled={loading}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione o sexo" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="M">Masculino</SelectItem>
+                    <SelectItem value="F">Feminino</SelectItem>
+                    <SelectItem value="O">
+                      Prefiro não informar
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+
+              <Field label="Data de nascimento">
+                <Input
+                  type="date"
+                  value={meUpdate?.dataNascimento?.slice(0, 10) ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo(
+                      "dataNascimento",
+                      (e.target.value || null) as UsuarioDetails["dataNascimento"]
+                    )
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="CPF">
+                <Input
+                  value={meUpdate?.cpf ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("cpf", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+            </div>
+          </Panel>
+
+          <Panel title="Endereço">
+            <div className="grid gap-4 p-4 sm:grid-cols-6 sm:p-5">
+              <Field label="CEP" className="sm:col-span-2">
+                <Input
+                  value={meUpdate?.cep ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("cep", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="Rua" className="sm:col-span-4">
+                <Input
+                  value={meUpdate?.rua ?? ""}
+                  readOnly
+                  className="bg-muted"
+                />
+              </Field>
+
+              <Field label="Número" className="sm:col-span-2">
+                <Input
+                  value={meUpdate?.numero ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("numero", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="Complemento" className="sm:col-span-4">
+                <Input
+                  value={meUpdate?.complemento ?? ""}
+                  onChange={(e) =>
+                    atualizarCampo("complemento", e.target.value)
+                  }
+                  disabled={loading}
+                />
+              </Field>
+
+              <Field label="Bairro" className="sm:col-span-2">
+                <Input
+                  value={meUpdate?.bairro ?? ""}
+                  readOnly
+                  className="bg-muted"
+                />
+              </Field>
+
+              <Field label="Município" className="sm:col-span-3">
+                <Input
+                  value={meUpdate?.municipio ?? ""}
+                  readOnly
+                  className="bg-muted"
+                />
+              </Field>
+
+              <Field label="Estado" className="sm:col-span-1">
+                <Input
+                  value={meUpdate?.estado ?? ""}
+                  readOnly
+                  className="bg-muted"
+                />
+              </Field>
+            </div>
+          </Panel>
+
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              className="w-full sm:w-auto sm:px-8"
+              disabled={loading || !meUpdate}
+            >
+              Salvar alterações
+            </Button>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">CPF</label>
-            <input
-              type="text"
-              value={cpf}
-              onChange={(e) => setCpf(maskCpf(e.target.value))}
-              className="w-full p-2 border rounded"
-              placeholder="000.000.000-00"
-              required
-            />
-          </div>
-        </div>
-        {/* CEP */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-1">CEP</label>
-          <input
-            type="text"
-            value={cep}
-            onChange={(e) => setCep(maskCep(e.target.value))}
-            onBlur={handleBuscarCEP}
-            className="w-full p-2 border rounded"
-            placeholder="00000-000"
-            required
-          />
-        </div>
-
-        {/* Rua e Número */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Rua</label>
-            <input
-              type="text"
-              value={rua}
-              disabled
-              className="w-full p-2 border rounded bg-gray-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Número</label>
-            <input
-              type="text"
-              value={numero}
-              onChange={(e) => setNumero(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            />
-          </div>
-          {/* Complemento */}
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Complemento</label>
-            <input
-              type="text"
-              value={complemento}
-              onChange={(e) => setComplemento(e.target.value)}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
-
-        {/* Município, Estado e Bairro */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium mb-1">Município</label>
-            <input
-              type="text"
-              value={municipio}
-              disabled
-              className="w-full p-2 border rounded bg-gray-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Estado</label>
-            <input
-              type="text"
-              value={estado}
-              disabled
-              className="w-full p-2 border rounded bg-gray-100"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Bairro</label>
-            <input
-              type="text"
-              value={bairro}
-              disabled
-              className="w-full p-2 border rounded bg-gray-100"
-            />
-          </div>
-        </div>
-
-
-        <button
-          type="submit"
-          className="w-full text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-        >
-          Salvar
-        </button>
-      </form>
-
-      <ToastContainer position="top-right" />
-    </main>
+        </form>
+      </div>
+    </>
   );
 }
