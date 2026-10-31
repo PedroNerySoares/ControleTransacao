@@ -1,17 +1,24 @@
 package br.com.alura.challenger.usuario.DTOS;
 
+import br.com.alura.challenger.roles.DTOS.RolesDTO;
+import br.com.alura.challenger.roles.Roles;
+import java.util.List;
+
 public class UserDetailsDTO {
+    private Long   id;
     private String usuario;
     private String email;
-    private String roles;
+    private String photoPerfil;
+    private List<RolesDTO> roles;
 
     public UserDetailsDTO() {
     }
+    public Long getId() {
+        return id;
+    }
 
-    public UserDetailsDTO(String usuario, String email, String roles) {
-        this.usuario = usuario;
-        this.email = email;
-        this.roles = roles;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUsuario() {
@@ -30,11 +37,19 @@ public class UserDetailsDTO {
         this.email = email;
     }
 
-    public String getRoles() {
+    public String getPhotoPerfil() {
+        return photoPerfil;
+    }
+
+    public void setPhotoPerfil(String photoPerfil) {
+        this.photoPerfil = photoPerfil;
+    }
+
+    public List<RolesDTO> getRoles() {
         return roles;
     }
 
-    public void setRoles(String roles) {
+    public void setRoles(List<RolesDTO> roles) {
         this.roles = roles;
     }
 }

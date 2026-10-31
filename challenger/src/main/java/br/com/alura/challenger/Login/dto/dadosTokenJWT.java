@@ -10,14 +10,15 @@ public class dadosTokenJWT {
     private String nome;
     private Long id;
     private String role;
+    private String photoPerfil;
 
-
-    public dadosTokenJWT(String token, String email, String nome, Long id, String role) {
+    public dadosTokenJWT(String token, String email, String nome, Long id, String role, String photoPerfil) {
         this.token = token;
         this.email = email;
         this.nome = nome;
         this.id = id;
         this.role = role;
+        this.photoPerfil = photoPerfil;
     }
 
     public String getRole() {
@@ -58,5 +59,13 @@ public class dadosTokenJWT {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getPhotoPerfil() {
+        return photoPerfil;
+    }
+
+    public void setPhotoPerfil(String photoPerfil) {
+        this.photoPerfil = photoPerfil;
     }
 }

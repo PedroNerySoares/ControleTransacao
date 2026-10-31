@@ -1,7 +1,6 @@
 package br.com.alura.challenger.roles;
 
 import br.com.alura.challenger.config.SecurityFilter;
-import br.com.alura.challenger.config.jdbcConfig;
 import br.com.alura.challenger.usuario.UsuarioRepository;
 import br.com.alura.challenger.commons.TokenService;
 import br.com.alura.challenger.commons.TransacaoServices;
@@ -34,7 +33,6 @@ public class RolesController {
 
     ModelMapper modelMapper = new ModelMapper();
 
-    jdbcConfig criarConexao = new jdbcConfig();
 
     @GetMapping()
     public ResponseEntity<?> listarRoles() {

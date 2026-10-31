@@ -122,7 +122,7 @@ public class UsuarioController {
     }
 
 
-    @PutMapping("setting sUser")
+    @PutMapping("/settingsUser")
     private ResponseEntity<AlterarPasswordUsuarioDto> alterarDatasdUsuario(
             HttpServletRequest request,
             @RequestBody AlterarUsuarioDto alteraUsuario) {

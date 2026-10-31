@@ -4,32 +4,30 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import br.com.alura.challenger.usuario.DTOS.UserDetailsDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import br.com.alura.challenger.transacao.Transacao;
 
 public class DetalheDto {
-	private String usuario;
+
 	@JsonFormat(pattern="dd/MM/yyyy HH:mm:ss")
 	private LocalDateTime dataImportacao;
 	@JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate dataTransacao;
 	private List<Transacao> transacao;
+    private UserDetailsDTO usuario;
 
 	public DetalheDto(){}
-	public DetalheDto(String usuario, LocalDateTime dataImportacao, LocalDate dataTransacao,
-			List<Transacao> transacao) {
-		this.usuario = usuario;
+	public DetalheDto(  LocalDateTime dataImportacao, LocalDate dataTransacao,
+			List<Transacao> transacao,UserDetailsDTO usuario) {
+
 		this.dataImportacao = dataImportacao;
 		this.dataTransacao = dataTransacao;
 		this.transacao = transacao;
+        this.usuario = usuario;
 	}
-	public String getUsuario() {
-		return usuario;
-	}
-	public void setUsuario(String usuario) {
-		this.usuario = usuario;
-	}
+
 	public LocalDateTime getDataImportacao() {
 		return dataImportacao;
 	}
@@ -48,12 +46,10 @@ public class DetalheDto {
 	public void setTransacao(List<Transacao> transacao) {
 		this.transacao = transacao;
 	}
-
-
-
-
-	
-	
-	
-
+    public UserDetailsDTO getUsuario() {
+        return usuario;
+    }
+    public void setUsuario(UserDetailsDTO usuario) {
+        this.usuario = usuario;
+    }
 }

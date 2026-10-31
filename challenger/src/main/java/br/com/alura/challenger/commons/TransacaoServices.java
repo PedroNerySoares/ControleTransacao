@@ -6,16 +6,34 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
+import br.com.alura.challenger.config.site.ConfiguracoesCache;
+import br.com.alura.challenger.transacao.DTOS.BancoSuspeitoDTO;
+import br.com.alura.challenger.transacao.DTOS.DashboardDTO;
+import br.com.alura.challenger.transacao.TransacaoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.alura.challenger.transacao.Transacao;
 
+
 @Service
 public class TransacaoServices {
-	
-	
-	public List<Transacao> lerArquivo(String path) {
+
+    @Autowired
+    private TransacaoRepository transacaoRepository;
+
+    private final ConfiguracoesCache configuracoesCache;
+
+    public TransacaoServices(ConfiguracoesCache configuracoesCache) {
+        this.configuracoesCache = configuracoesCache;
+    }
+
+
+    public List<Transacao> lerArquivo(String path) {
 		
 		List<Transacao> lista = new ArrayList<Transacao>();
 		try(BufferedReader br = new BufferedReader(new FileReader(path))) {
@@ -57,5 +75,36 @@ public class TransacaoServices {
 		
 		return lista;
 	}
+
+    public DashboardDTO recuperaInfoDashboard() {
+
+        List<Object[]> resultado =
+                transacaoRepository.valoresSuspeitoBanco();
+
+        List<BancoSuspeitoDTO> bancos = resultado.stream()
+                .map(linha -> new BancoSuspeitoDTO(
+                        (String) linha[0],
+                        new BigDecimal(linha[1].toString())
+                ))
+                .collect(Collectors.toList());
+
+        BigDecimal totalValorSuspeito = bancos.stream()
+                .map(BancoSuspeitoDTO::getValorSuspeito)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
+        int quantidadeTransacaoSuspeita = transacaoRepository.listaTransacaoSuspeita(limite,"202610").size();
+
+
+        int quantidadeImportacao = 11;
+
+        return new DashboardDTO(
+                bancos,
+                quantidadeTransacaoSuspeita,
+                totalValorSuspeito,
+                quantidadeImportacao
+        );
+    }
 
 }

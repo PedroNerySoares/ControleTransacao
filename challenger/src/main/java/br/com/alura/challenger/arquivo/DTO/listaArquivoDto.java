@@ -3,6 +3,8 @@ package br.com.alura.challenger.arquivo.DTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import br.com.alura.challenger.usuario.DTOS.UserDetailsDTO;
+import br.com.alura.challenger.usuario.UsuarioModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class listaArquivoDto {
@@ -11,13 +13,15 @@ public class listaArquivoDto {
     private LocalDateTime dataImportacao;
     @JsonFormat(pattern = "dd/MM/yyyy")
 	private LocalDate dataTransacao;
+    private UserDetailsDTO usuario;
 
 
     public listaArquivoDto(){}
-    public listaArquivoDto(Long id, LocalDateTime dataImportacao, LocalDate dataTransacao) {
+    public listaArquivoDto(Long id, LocalDateTime dataImportacao, LocalDate dataTransacao,UserDetailsDTO usuario) {
         this.id = id;
         this.dataImportacao = dataImportacao;
         this.dataTransacao = dataTransacao;
+        this.usuario = usuario;
     }
     public Long getId() {
         return id;
@@ -38,6 +42,11 @@ public class listaArquivoDto {
         this.dataTransacao = dataTransacao;
     }
 
+    public UserDetailsDTO getUsuario() {
+        return usuario;
+    }
 
-    
+    public void setUsuario(UserDetailsDTO usuario) {
+        this.usuario = usuario;
+    }
 }

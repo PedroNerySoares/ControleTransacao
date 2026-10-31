@@ -1,6 +1,10 @@
 package br.com.alura.challenger.usuario.DTOS;
 
+import br.com.alura.challenger.roles.DTOS.RolesDTO;
+import br.com.alura.challenger.roles.Roles;
+
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserMeDetails {
     private String usuario;
@@ -18,11 +22,12 @@ public class UserMeDetails {
     private String rua;
     private String numero;
     private String municipio;
+    private List<RolesDTO> roles;
 
     public UserMeDetails() {
     }
 
-    public UserMeDetails(String usuario, String email, String primeiroNome, String ultimoNome, String cpf, LocalDate dataNascimento, String sexo, String cep, String bairro, String complemento, String estado, String rua, String numero, String municipio) {
+    public UserMeDetails(String usuario, String email, String primeiroNome, String ultimoNome, String cpf, LocalDate dataNascimento, String sexo, String cep, String bairro, String complemento, String estado, String rua, String numero, String municipio, List<RolesDTO> roles) {
         this.usuario = usuario;
         this.email = email;
         this.primeiroNome = primeiroNome;
@@ -37,6 +42,7 @@ public class UserMeDetails {
         this.rua = rua;
         this.numero = numero;
         this.municipio = municipio;
+        this.roles = roles;
     }
 
     public String getUsuario() {
@@ -149,5 +155,13 @@ public class UserMeDetails {
 
     public void setMunicipio(String municipio) {
         this.municipio = municipio;
+    }
+
+    public List<RolesDTO> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RolesDTO> roles) {
+        this.roles = roles;
     }
 }

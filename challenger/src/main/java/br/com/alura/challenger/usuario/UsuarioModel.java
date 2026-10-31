@@ -37,6 +37,7 @@ public class UsuarioModel implements UserDetails {
 	private String rua;
 	private String numero;
 	private String municipio;
+    private String photoPerfil;
 
 
 	@ManyToMany(fetch = FetchType.EAGER)
@@ -52,7 +53,7 @@ public class UsuarioModel implements UserDetails {
 
 
 
-	public UsuarioModel(String usuario, String email, String senha, String status, String cep, String bairro, String complemento, String estado, String rua, String numero, String municipio, List<Roles> roles) {
+	public UsuarioModel(String usuario, String email, String senha, String status, String cep, String bairro, String complemento, String estado, String rua, String numero, String municipio,String photoPerfil, List<Roles> roles) {
 		this.usuario = usuario;
 		this.email = email;
 		this.senha = senha;
@@ -64,6 +65,7 @@ public class UsuarioModel implements UserDetails {
 		this.rua = rua;
 		this.numero = numero;
 		this.municipio =municipio;
+        this.photoPerfil = photoPerfil;
 		this.roles = roles;
 	}
 
@@ -199,11 +201,27 @@ public class UsuarioModel implements UserDetails {
 		return rua;
 	}
 
-	public void setRua(String rua) {
+    public void setRua(String rua) {
 		this.rua = rua;
 	}
 
-	@Override
+    public String getPhotoPerfil() {
+        return photoPerfil;
+    }
+
+    public List<Roles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Roles> roles) {
+        this.roles = roles;
+    }
+
+    public void setPhotoPerfil(String photoPerfil) {
+        this.photoPerfil = photoPerfil;
+    }
+
+    @Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return roles.stream()
 				.map(role -> new SimpleGrantedAuthority(role.getNome()))

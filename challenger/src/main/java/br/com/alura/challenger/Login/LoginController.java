@@ -6,7 +6,9 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 
 import br.com.alura.challenger.Login.dto.autenticacaoDTO;
+import br.com.alura.challenger.Login.dto.GoogleLoginDTO;
 import br.com.alura.challenger.commons.EnviarEmail;
+import br.com.alura.challenger.commons.GoogleOAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,8 @@ public class LoginController {
     private AuthenticationManager manager;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private GoogleOAuthService googleOAuthService;
 
     CriptografiaService crip = new CriptografiaService();
 
@@ -67,12 +71,18 @@ public class LoginController {
 //                    .build();
 //
 
-            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT, usu.get().getEmail(),usu.get().getUsuario(),usu.get().getId(),usu.get().getAuthorities().toString().replace("[","").replace("]","")));
+            return ResponseEntity.ok(new dadosTokenJWT(tokenJWT, usu.get().getEmail(),usu.get().getUsuario(),usu.get().getId(),usu.get().getAuthorities().toString().replace("[","").replace("]",""),usu.get().getPhotoPerfil()));
 
         } catch (Exception e) {
             throw new RuntimeException("Email ou senha inválida");
         }
 
+    }
+
+    @PostMapping("/google")
+    private ResponseEntity<dadosTokenJWT> loginGoogle(
+            @Valid @RequestBody GoogleLoginDTO googleLoginDTO) {
+        return ResponseEntity.ok(googleOAuthService.login(googleLoginDTO.getIdToken()));
     }
 
     @PostMapping("/reset")

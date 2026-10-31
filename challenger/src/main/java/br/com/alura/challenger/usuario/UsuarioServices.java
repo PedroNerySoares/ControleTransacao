@@ -45,9 +45,11 @@ public class UsuarioServices extends ConvertAbstract {
 
     }
     private List<UsuarioModel> getAllUser() {
-        return usuarioRepository.findAll().stream().filter((user) -> !user.getUsuario().equals("Admin")
+        List<UsuarioModel> t1 =  usuarioRepository.findAll().stream().filter((user) -> !user.getUsuario().equals("Admin")
                         && user.isEnabled())
                 .toList();
+
+        return t1;
     }
 
 
@@ -56,6 +58,7 @@ public class UsuarioServices extends ConvertAbstract {
 
         return convertToDTOList(getAllUser(), UserDetailsDTO.class);
     }
+
     public UserMeDetails getUserInfo(Long idUser) {
 
         return convertToDTO(this.getUserById(idUser)
@@ -85,7 +88,7 @@ public class UsuarioServices extends ConvertAbstract {
                 senhaCriptografada,
                 "S",
 //                usuarioDTO.getCep(), usuarioDTO.getBairro(), usuarioDTO.getComplemento(), usuarioDTO.getEstado(), usuarioDTO.getRua(), usuarioDTO.getNumero(), usuarioDTO.getMunicipio(),
-                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,null,
                 listaRoles
         );
 

@@ -3,7 +3,10 @@ package br.com.alura.challenger.transacao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
 
+import br.com.alura.challenger.config.site.ConfiguracoesCache;
+import br.com.alura.challenger.transacao.DTOS.DashboardDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +16,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.alura.challenger.config.jdbcConfig;
 import br.com.alura.challenger.transacao.DTOS.AgenciaSuspeitaDto;
 import br.com.alura.challenger.transacao.DTOS.ContasSuspeitasDto;
+
+import br.com.alura.challenger.transacao.DTOS.infoDashboard;
 import br.com.alura.challenger.arquivo.ArquivoRepository;
 import br.com.alura.challenger.commons.TransacaoServices;
 
@@ -30,12 +34,17 @@ public class TransacaoController {
 
     private ModelMapper modelMapper;
 
-    jdbcConfig criarConexao = new jdbcConfig();
+    private final ConfiguracoesCache configuracoesCache;
+
     List<ContasSuspeitasDto> listaContaSuspeita = new ArrayList<ContasSuspeitasDto>();
     List<AgenciaSuspeitaDto> listaAgenciaSuspeita = new ArrayList<AgenciaSuspeitaDto>();
 
     @Autowired
     private TransacaoRepository transacaoRepository;
+
+    public TransacaoController(ConfiguracoesCache configuracoesCache) {
+        this.configuracoesCache = configuracoesCache;
+    }
 
     @GetMapping
     private ResponseEntity<List<Transacao>> listaTransacao() {
@@ -44,13 +53,19 @@ public class TransacaoController {
 
     }
 
+    @GetMapping("/teste")
+
+    public ResponseEntity<DashboardDTO> recuperaInfoDashboard() {
+
+        DashboardDTO dashboard =
+                transacao.recuperaInfoDashboard();
+
+        return ResponseEntity.ok(dashboard);
+    }
+
     @GetMapping("{id}")
     private ResponseEntity<List<Transacao>> TransacaoDetalhe(@PathVariable Long id) {
         List<Transacao> trans = transacaoRepository.listaTransacaoArquivo(id);
-        // if (trans.isPresent()) {
-        // return ResponseEntity.ok(trans.get());
-        // }
-        // return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok().body(trans);
 
@@ -58,7 +73,8 @@ public class TransacaoController {
 
     @GetMapping("/suspeita/{anoMes}")
     private ResponseEntity<List<Transacao>> ListarTransacaoSuspeita(@PathVariable String anoMes) {
-        Double limite = 100.00;
+
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
         return ResponseEntity.ok().body(transacaoRepository.listaTransacaoSuspeita(limite, anoMes));
 
     }
@@ -66,15 +82,25 @@ public class TransacaoController {
     @GetMapping("suspeita/conta/{anoMes}")
     private List<ContasSuspeitasDto> ListarContasAgencia(@PathVariable String anoMes) throws SQLException {
 
-
-        return transacaoRepository.listarContasSuspeitas(anoMes, 20.00);
+        System.out.println(configuracoesCache.getConfiguracoes());
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorContaSuspeito();
+        return transacaoRepository.listarContasSuspeitas(anoMes, limite);
 
     }
 
     @GetMapping("suspeita/agencia/{anoMes}")
     private List<ContasSuspeitasDto> ListarAgenciaSuspeita(@PathVariable String anoMes) throws SQLException {
 
-        return transacaoRepository.listarAgenciaSuspeitas(anoMes, 100.00);
+
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorAgenciaSuspeito();
+        return transacaoRepository.listarAgenciaSuspeitas(anoMes, limite);
+    }
+
+    @GetMapping("dashboard")
+    private List<infoDashboard> dashboardInfo() throws SQLException {
+
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
+        return transacaoRepository.dadosDashBoard(limite);
     }
 
     @DeleteMapping
