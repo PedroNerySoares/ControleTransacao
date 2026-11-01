@@ -77,9 +77,10 @@ public class TransacaoServices {
 	}
 
     public DashboardDTO recuperaInfoDashboard() {
+        BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
 
         List<Object[]> resultado =
-                transacaoRepository.valoresSuspeitoBanco();
+                transacaoRepository.valoresSuspeitoBanco(/*"202610",*/ limite);
 
         List<BancoSuspeitoDTO> bancos = resultado.stream()
                 .map(linha -> new BancoSuspeitoDTO(
@@ -93,8 +94,7 @@ public class TransacaoServices {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
 
-        BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
-        int quantidadeTransacaoSuspeita = transacaoRepository.listaTransacaoSuspeita(limite,"202610").size();
+        int quantidadeTransacaoSuspeita = transacaoRepository.listaTransacaoSuspeita(limite).size();
 
 
         int quantidadeImportacao = 11;

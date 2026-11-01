@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import br.com.alura.challenger.config.site.ConfiguracoesCache;
 import br.com.alura.challenger.transacao.DTOS.DashboardDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import br.com.alura.challenger.transacao.DTOS.AgenciaSuspeitaDto;
 import br.com.alura.challenger.transacao.DTOS.ContasSuspeitasDto;
@@ -75,32 +77,35 @@ public class TransacaoController {
     private ResponseEntity<List<Transacao>> ListarTransacaoSuspeita(@PathVariable String anoMes) {
 
         BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
-        return ResponseEntity.ok().body(transacaoRepository.listaTransacaoSuspeita(limite, anoMes));
+        return ResponseEntity.ok().body(transacaoRepository.listaTransacaoSuspeita(limite));
 
     }
 
     @GetMapping("suspeita/conta/{anoMes}")
-    private List<ContasSuspeitasDto> ListarContasAgencia(@PathVariable String anoMes) throws SQLException {
+    private List<ContasSuspeitasDto> ListarContasAgencia(@PathVariable String anoMes)  {
 
         System.out.println(configuracoesCache.getConfiguracoes());
         BigDecimal limite = configuracoesCache.getConfiguracoes().valorContaSuspeito();
-        return transacaoRepository.listarContasSuspeitas(anoMes, limite);
+        return transacaoRepository.listarContasSuspeitas( limite);
 
     }
 
     @GetMapping("suspeita/agencia/{anoMes}")
-    private List<ContasSuspeitasDto> ListarAgenciaSuspeita(@PathVariable String anoMes) throws SQLException {
+    private List<ContasSuspeitasDto> ListarAgenciaSuspeita(@PathVariable String anoMes)  {
 
 
         BigDecimal limite = configuracoesCache.getConfiguracoes().valorAgenciaSuspeito();
-        return transacaoRepository.listarAgenciaSuspeitas(anoMes, limite);
+        return transacaoRepository.listarAgenciaSuspeitas( limite);
     }
 
     @GetMapping("dashboard")
-    private List<infoDashboard> dashboardInfo() throws SQLException {
+    private List<infoDashboard> dashboardInfo( @RequestParam(required = false) String dataInicio ,
+                                               @RequestParam(required = false) String dataFim )  {
+        System.out.println(dataInicio);
 
+        System.out.println(dataFim);
         BigDecimal limite = configuracoesCache.getConfiguracoes().valorTransacaoSuspeito();
-        return transacaoRepository.dadosDashBoard(limite);
+        return transacaoRepository.dadosDashBoard(dataInicio,dataFim,limite);
     }
 
     @DeleteMapping
@@ -109,4 +114,10 @@ public class TransacaoController {
     }
 
 
+    @GetMapping("topSuspeita")
+    private List<Transacao>  topTransacaoSuspeita(){
+
+        return transacaoRepository.findTop5ByOrderByValorTransacaoDesc();
+
+    }
 }
