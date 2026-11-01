@@ -156,7 +156,7 @@ export default function Configuracao() {
   return (
     <>
       <PageHeader
-        title="Configurações"
+        title="Parametrização"
         description="Defina os valores para identificar movimentações suspeitas."
       />
 

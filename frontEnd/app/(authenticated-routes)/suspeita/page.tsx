@@ -7,37 +7,26 @@ import { Search } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
 import { Badge } from "@/app/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/app/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/app/components/ui/select";
 import { PageHeader, Panel } from "@/app/components/page-header";
 import { TransacoesTable } from "@/app/components/transacoes-table";
 
-import {
-  agenciasSuspeitas,
-  brl,
-  contasSuspeitas,
-  transacoesSuspeitas,
-  type ContaSuspeita,
-} from "@/app/lib/mock-data";
+import { agenciasSuspeitas, brl, contasSuspeitas, transacoesSuspeitas, type ContaSuspeita, } from "@/app/lib/mock-data";
 
 import { getAnoMes, getTransacaoAgenciaSuspeita, getTransacaoContaSuspeita, getTransacaoSuspeita } from "@/app/services/api";
 import { toast } from "sonner";
-import { IMovimentacao, ITransacao } from "@/app/types/transacao";
+import { IMovimentacaoSuspeitas, ITransacao } from "@/app/types/transacao";
 import { MesAno } from "@/app/types/arquivo";
 
 export default function Suspeitas() {
   const [comp, setComp] = useState("");
-  const [busca, setBusca] = useState("");
+  const [busca, setBusca] = useState<boolean>(false);
   const [competencias, setCompetencias] = useState<MesAno[]>([]);
   const [carregando, setCarregando] = useState(true);
+
   const [transacoesSuspeitas, setTransacoesSuspeitas] = useState<ITransacao[]>([]);
-  const [contasSuspeitas, setContasSuspeitas] = useState<IMovimentacao[]>([]);
-  const [agenciasSuspeitas, setAgenciasSuspeitas] = useState<IMovimentacao[]>([]);
+  const [contasSuspeitas, setContasSuspeitas] = useState<IMovimentacaoSuspeitas[]>([]);
+  const [agenciasSuspeitas, setAgenciasSuspeitas] = useState<IMovimentacaoSuspeitas[]>([]);
 
   const { data: session } = useSession();
   const token = session?.user.accessToken;
@@ -74,25 +63,49 @@ export default function Suspeitas() {
     };
   }, [token]);
 
-  async function fetchInfos() {
+  async function carregarDados() {
     if (!token) return;
+    const accessToken = token;
+    setBusca(false)
 
-    try {
-      const data = await getTransacaoSuspeita(token, comp);
-      setTransacoesSuspeitas(data);
-      setBusca(comp);
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível carregar as transações suspeitas.",
-      );
+
+    const resultados = await Promise.allSettled([ 
+      getTransacaoSuspeita(accessToken, comp) , 
+      getTransacaoAgenciaSuspeita(accessToken, comp),
+      getTransacaoContaSuspeita(accessToken, comp),
+    ]);
+
+
+
+    // Últimos arquivos
+    const data = resultados[0];
+
+    if (data.status === "fulfilled") {
+      if (Array.isArray(data.value)) {
+        console.log("entrei")
+        setTransacoesSuspeitas(data.value);
+      } else {
+        toast.error("A resposta da lista é inválida.");
+      }
+    } else {
+      toast.error("Não foi possível carregar transações suspeitas.");
     }
-  }
-  function buscar() {
-    // setBusca(comp);
-  }
 
+    const agencia = resultados[1];
+    if (agencia.status === "fulfilled") {
+      setAgenciasSuspeitas(agencia.value);
+    } else {
+      toast.error("Não foi possível carregar os dados de agência suspeita.");
+    }
+
+    const contas = resultados[2];
+    if (contas.status === "fulfilled") {
+      setContasSuspeitas(contas.value);
+    } else {
+      toast.error("Não foi possível carregar os dados de contas suspeita.");
+    }
+    setBusca(true)
+  }
   return (
     <>
       <PageHeader
@@ -128,7 +141,7 @@ export default function Suspeitas() {
               </SelectContent>
             </Select>
 
-            <Button disabled={!comp} onClick={fetchInfos}>
+            <Button disabled={!comp} onClick={carregarDados}>
               <Search />
               Buscar
             </Button>
@@ -148,7 +161,7 @@ export default function Suspeitas() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Panel title="Contas suspeitas">
-            <MovTable data={busca ? contasSuspeitas : []} conta />
+            <MovTable data={busca ? contasSuspeitas : []} conta  />
           </Panel>
 
           <Panel title="Agências suspeitas">
@@ -164,7 +177,7 @@ function MovTable({
   data,
   conta,
 }: {
-  data: ContaSuspeita[];
+  data: IMovimentacaoSuspeitas[];
   conta?: boolean;
 }) {
   if (!data.length) {
@@ -176,29 +189,30 @@ function MovTable({
   }
 
   return (
-    <ul className="divide-y">
+    <ul className="max-h-[32rem] divide-y overflow-y-auto overscroll-contain">
       {data.map((d, i) => (
         <li
           key={i}
           className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5"
         >
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{d.banco}</p>
+            <p className="truncate text-sm font-medium">{d.bancoOrigem}</p>
             <p className="text-xs text-muted-foreground">
-              Agência {d.agencia}
-              {conta && d.conta ? ` · Conta ${d.conta}` : ""}
+              Agência {d.agenciaOrigem}
+              
+              {conta && d.agenciaOrigem? ` · Conta ${d.contaOrigem}` : ""}
             </p>
           </div>
 
           <div className="shrink-0 text-right">
             <p className="text-sm font-semibold tabular-nums">
-              {brl(d.valor)}
+              {brl(d.total)}
             </p>
             <Badge
-              variant={d.tipo === "Entrada" ? "default" : "secondary"}
+              variant={d.operacao === "Entrada" ? "default" : "secondary"}
               className="mt-1"
             >
-              {d.tipo}
+              {d.operacao}
             </Badge>
           </div>
         </li>

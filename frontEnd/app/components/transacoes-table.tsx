@@ -8,12 +8,12 @@ export function TransacoesTable({ data, destaque = "success" }: { data: ITransac
   return (
     <>
 
-      <ul className="divide-y md:hidden">
+      <ul className="max-h-[32rem] divide-y overflow-y-auto overscroll-contain md:hidden">
         {data.map((t, i) => (
           <li key={i} className="space-y-2 p-4">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase text-muted-foreground">Valor</span>
-              <span className={`font-semibold ${valorCls}`}>{(t.valorTransacao)}</span>
+              <span className={`font-semibold ${valorCls}`}>{brl(t.valorTransacao)}</span>
             </div>
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
               <div className="min-w-0">
@@ -30,9 +30,9 @@ export function TransacoesTable({ data, destaque = "success" }: { data: ITransac
         ))}
       </ul>
       {/* Desktop: tabela */}
-      <div className="hidden overflow-x-auto md:block">
+      <div className="hidden max-h-[32rem] overflow-auto overscroll-contain md:block">
         <table className="w-full text-sm">
-          <thead className="bg-muted text-xs uppercase text-muted-foreground">
+          <thead className="sticky top-0 z-10 bg-muted text-xs uppercase text-muted-foreground">
             <tr>
               <th colSpan={3} className="border-r px-4 pt-3 pb-1 text-left font-semibold">Origem</th>
               <th colSpan={3} className="border-r px-4 pt-3 pb-1 text-left font-semibold">Destino</th>
@@ -56,7 +56,7 @@ export function TransacoesTable({ data, destaque = "success" }: { data: ITransac
                 <td className="px-4 py-3 font-medium">{t.bancoDestino}</td>
                 <td className="px-4 py-3 tabular-nums">{t.agenciaDestino}</td>
                 <td className="border-r px-4 py-3 tabular-nums">{t.contaDestino}</td>
-                <td className={`px-4 py-3 text-right font-semibold tabular-nums ${valorCls}`}>{(t.valorTransacao)}</td>
+                <td className={`px-4 py-3 text-right font-semibold tabular-nums ${valorCls}`}>{brl(t.valorTransacao)}</td>
               </tr>
             ))}
           </tbody>

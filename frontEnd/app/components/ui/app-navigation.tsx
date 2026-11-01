@@ -8,6 +8,8 @@ import {
   PanelLeftOpen,
   Radar,
   Settings,
+  ChevronDown,
+  Landmark,
   ShieldAlert,
   SquareArrowRightExit,
   Upload,
@@ -36,6 +38,12 @@ export default function AppNavigation({ children }: { children: ReactNode }) {
   const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [configuracaoAbertaManual, setConfiguracaoAbertaManual] = useState<
+    boolean | null
+  >(null);
+  const configuracaoAtiva = pathname.startsWith("/configuracao");
+  const configuracaoAberta =
+    configuracaoAbertaManual ?? configuracaoAtiva;
   const userName = session?.user.name ?? session?.user.email ?? "Usuário";
   const userInitials = userName
     .split(/\s+/)
@@ -50,7 +58,11 @@ export default function AppNavigation({ children }: { children: ReactNode }) {
   );
   const pageTitle = pathname.startsWith("/importacao/")
     ? "Detalhes da importação"
-    : activeItem?.title ?? "Sentinela";
+    : pathname.startsWith("/configuracao/banco")
+      ? "Banco"
+      : pathname.startsWith("/configuracao")
+        ? "Parametrização"
+        : activeItem?.title ?? "Sentinela";
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -133,13 +145,63 @@ export default function AppNavigation({ children }: { children: ReactNode }) {
             ))}
 
             <div className="mt-auto">
-              <ButtonAside
-                href="/configuracao"
-                title="Configurações"
-                icon={Settings}
-                collapsed={collapsed && !mobileOpen}
-                onNavigate={() => setMobileOpen(false)}
-              />
+              <button
+                type="button"
+                aria-label="Configurações"
+                aria-expanded={configuracaoAberta}
+                onClick={() => {
+                  if (collapsed && !mobileOpen) setCollapsed(false);
+                  setConfiguracaoAbertaManual(!configuracaoAberta);
+                }}
+                className={[
+                  "flex w-full items-center rounded-lg py-3 text-sm font-medium transition-colors",
+                  collapsed && !mobileOpen
+                    ? "justify-center px-3"
+                    : "justify-start gap-3 px-3",
+                  pathname.startsWith("/configuracao")
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                ].join(" ")}
+              >
+                <Settings className="size-5 shrink-0" />
+                {(!collapsed || mobileOpen) && (
+                  <>
+                    <span className="flex-1 text-left">Configurações</span>
+                    <ChevronDown
+                      className={[
+                        "size-4 transition-transform",
+                        configuracaoAberta ? "rotate-180" : "",
+                      ].join(" ")}
+                    />
+                  </>
+                )}
+              </button>
+              {configuracaoAberta && (!collapsed || mobileOpen) && (
+                <div className="ml-4 mt-1 flex flex-col gap-1 border-l border-sidebar-border pl-3">
+                  <ButtonAside
+                    href="/configuracao"
+                    title="Parametrização"
+                    icon={Settings}
+                    active={pathname === "/configuracao"}
+                    collapsed={false}
+                    onNavigate={() => {
+                      setConfiguracaoAbertaManual(null);
+                      setMobileOpen(false);
+                    }}
+                  />
+                  <ButtonAside
+                    href="/configuracao/banco"
+                    title="Banco"
+                    icon={Landmark}
+                    active={pathname.startsWith("/configuracao/banco")}
+                    collapsed={false}
+                    onNavigate={() => {
+                      setConfiguracaoAbertaManual(null);
+                      setMobileOpen(false);
+                    }}
+                  />
+                </div>
+              )}
               <ButtonAside
                 href="/"
                 title="Sair"

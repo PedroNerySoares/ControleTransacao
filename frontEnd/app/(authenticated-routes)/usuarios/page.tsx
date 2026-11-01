@@ -282,7 +282,7 @@ export default function Usuarios() {
             />
           </div>
         </div>
-        <ul className="divide-y">
+        <ul className="max-h-[36rem] divide-y overflow-y-auto overscroll-contain">
           {filtrados.map((usuario) => (
 
             <li

@@ -85,7 +85,7 @@ const nextAuthOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.accessToken = user.accessToken;
         token.id = user.id;
@@ -95,6 +95,15 @@ const nextAuthOptions: NextAuthOptions = {
         token.photoPerfil = user.photoPerfil;
         token.picture = user.photoPerfil ?? user.image;
       }
+
+      if (
+        trigger === "update" &&
+        typeof session?.photoPerfil === "string"
+      ) {
+        token.photoPerfil = session.photoPerfil;
+        token.picture = session.photoPerfil;
+      }
+
       return token;
     },
     async session({ session, token }) {

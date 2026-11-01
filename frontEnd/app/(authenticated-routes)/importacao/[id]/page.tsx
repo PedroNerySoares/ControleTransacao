@@ -19,12 +19,11 @@ export default function ImportacaoDetalhe() {
 
   const params = useParams<{ id: string }>();
 
- const { data: session } = useSession();
- const token = session?.user.accessToken;
+  const { data: session } = useSession();
+  const token = session?.user.accessToken;
 
   const [dadosArquivo, setDadosArquivo] = useState<ArquivoDetalhe>()
-  // const imp = importacoes.find((i) => String(i.id) === params.id) ?? importacoes[0]!;
-  const total = dadosArquivo?.transacao.reduce((s, t) => s + t.valorTransacao, 0);
+  const total = dadosArquivo?.transacao.reduce((s, t) => s + t.valorTransacao, 0) ?? 0;
 
   useEffect(() => {
     if (!token) return;
@@ -54,7 +53,7 @@ export default function ImportacaoDetalhe() {
       <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2">
         <Link href="/importacao"><ArrowLeft /> Voltar</Link>
       </Button>
-      <PageHeader title="Detalhes da importação" description={`${dadosArquivo?.transacao.length} transações · ${(total)} movimentados`} />
+      <PageHeader title="Detalhes da importação" description={`${dadosArquivo?.transacao.length} transações · ${brl(total)} movimentados`} />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         {info.map((i) => (

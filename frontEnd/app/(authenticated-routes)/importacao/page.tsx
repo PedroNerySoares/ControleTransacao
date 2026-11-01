@@ -105,7 +105,7 @@ export default function Importacoes() {
 
       <div className="mt-6">
         <Panel title="Importações realizadas">
-          <ul className="divide-y md:hidden">
+          <ul className="max-h-[32rem] divide-y overflow-y-auto overscroll-contain md:hidden">
             {importacoes.map((i) => (
               <li key={i.id}>
                 <Link href={`/importacao/${i.id}`} className="flex items-center justify-between gap-3 p-4 hover:bg-muted">
@@ -118,9 +118,9 @@ export default function Importacoes() {
               </li>
             ))}
           </ul>
-          <div className="hidden overflow-x-auto md:block">
+          <div className="hidden max-h-[32rem] overflow-auto overscroll-contain md:block">
             <table className="w-full text-sm">
-              <thead className="bg-muted text-xs uppercase text-muted-foreground">
+              <thead className="sticky top-0 z-10 bg-muted text-xs uppercase text-muted-foreground">
                 <tr>
                   <th className="px-5 py-3 text-left font-semibold">Data de importação</th>
                   <th className="px-5 py-3 text-left font-semibold">Data da transação</th>

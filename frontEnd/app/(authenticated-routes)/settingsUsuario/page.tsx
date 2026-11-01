@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 
@@ -18,58 +18,55 @@ import {
 
 import { PageHeader, Panel } from "@/app/components/page-header";
 import type { UsuarioDetails } from "@/app/types/usuario";
-import { getMe } from "@/app/services/api";
+import { getMe, putChangeDatasUser } from "@/app/services/api";
+import { getInfoEndereco } from "@/app/services/external/cepApi";
+import { LoaderCircle, Upload } from "lucide-react";
+import { Field } from "@/app/components/ui/field";
 
-function Field({
-  label,
-  children,
-  className = "",
-}: {
-  label: string;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={`space-y-2 ${className}`}>
-      <Label>{label}</Label>
-      {children}
-    </div>
-  );
-}
+ 
 
 export default function SettingsUsuario() {
-  // Dados originais exibidos no perfil
   const [me, setMe] = useState<UsuarioDetails | null>(null);
-
-  // Dados que estão sendo editados no formulário
   const [meUpdate, setMeUpdate] = useState<UsuarioDetails | null>(null);
+  const [loadedToken, setLoadedToken] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
+  const [photoLoading, setPhotoLoading] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const [loading, setLoading] = useState(true);
-
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
   const token = session?.user.accessToken;
+  const loading = status === "loading" || (!!token && loadedToken !== token);
 
   useEffect(() => {
-    if (!token) return;
+    if (status === "loading" || !token) return;
     const accessToken = token;
+    let isMounted = true;
 
     async function carregarUsuario() {
       try {
         const response = await getMe(accessToken);
         const data: UsuarioDetails = response;
 
-        setMe(data);
-        setMeUpdate(data);
+        if (isMounted) {
+          setMe(data);
+          setMeUpdate(data);
+        }
       } catch (error) {
-        console.error("Erro ao carregar usuário:", error);
-        toast.error(error instanceof Error ? error.message : "Erro ao carregar os dados do perfil.");
+        if (isMounted) {
+          toast.error(error instanceof Error ? error.message : "Erro ao carregar os dados do perfil.");
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) setLoadedToken(accessToken);
       }
     }
 
     carregarUsuario();
-  }, [token]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [status, token]);
 
   function atualizarCampo<K extends keyof UsuarioDetails>(
     campo: K,
@@ -85,16 +82,83 @@ export default function SettingsUsuario() {
     );
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleCepBlur() {
+    const cep = meUpdate?.cep.replace(/\D/g, "") ?? "";
+    if (cep.length !== 8 || cep === me?.cep.replace(/\D/g, "")) return;
+
+    setCepLoading(true);
+    try {
+      const endereco = await getInfoEndereco(cep);
+      setMeUpdate((current) =>
+        current && current.cep.replace(/\D/g, "") === cep
+          ? {
+              ...current,
+              cep: endereco.cep,
+              rua: endereco.logradouro,
+              complemento: endereco.complemento,
+              bairro: endereco.bairro,
+              municipio: endereco.localidade,
+              estado: endereco.uf,
+            }
+          : current,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível consultar o CEP.");
+    } finally {
+      setCepLoading(false);
+    }
+  }
+
+  async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem.");
+      return;
+    }
+
+    setPhotoLoading(true);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 256 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Não foi possível processar a imagem.");
+
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      const photoPerfil = canvas.toDataURL("image/jpeg", 0.75);
+      await update({ photoPerfil });
+      toast.success("Foto de perfil atualizada.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar a foto.");
+    } finally {
+      setPhotoLoading(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!meUpdate) return;
+    if (!meUpdate || !token) {
+      toast.error("Não foi possível salvar o perfil. Entre novamente.");
+      return;
+    }
 
-    // Simulação de salvamento na interface.
-    // Substitua pela chamada de atualização da API quando implementá-la.
-    setMe({ ...meUpdate });
+    setSaving(true);
+    try {
+      await putChangeDatasUser(token, meUpdate);
+      setMe({ ...meUpdate });
+      toast.success("Perfil atualizado.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível atualizar o perfil.");
+    } finally {
+      setSaving(false);
+    }
 
-    toast.success("Perfil atualizado");
   }
 
   return (
@@ -105,16 +169,21 @@ export default function SettingsUsuario() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        {/* Cartão do perfil: mostra os dados originais */}
         <Panel>
           <div className="flex flex-col items-center p-6 text-center">
             <Avatar
               className="h-32 w-32"
-              src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29_denoise.jpg/500px-Foto_oficial_de_Luiz_In%C3%A1cio_Lula_da_Silva_%28ombros%29_denoise.jpg?utm_source=pt.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+              src={session?.user.photoPerfil ?? session?.user.image ?? undefined}
               alt="Foto de perfil"
               fallback={
                 <span className="bg-primary text-xs text-primary-foreground">
-                  PS
+                  {(session?.user.name ?? session?.user.email ?? "U")
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part[0])
+                    .join("")
+                    .toUpperCase()}
                 </span>
               }
             />
@@ -122,25 +191,34 @@ export default function SettingsUsuario() {
             <h2 className="mt-4 text-lg font-semibold">
               {me
                 ? `${me.primeiroNome ?? ""} ${me.ultimoNome ?? ""}`.trim()
-                : "Carregando..."}
+                : loading ? "Carregando..." : session?.user.name ?? "Meu perfil"}
             </h2>
 
             <p className="text-sm text-muted-foreground">
               {me?.email ?? ""}
             </p>
 
+            <input
+              ref={photoInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handlePhotoChange}
+              type="file"
+            />
             <Button
               type="button"
               variant="outline"
               size="sm"
               className="mt-4"
+              disabled={photoLoading}
+              onClick={() => photoInputRef.current?.click()}
             >
-              Alterar foto
+              {photoLoading ? <LoaderCircle className="animate-spin" /> : <Upload />}
+              {photoLoading ? "Atualizando..." : "Alterar foto"}
             </Button>
           </div>
         </Panel>
 
-        {/* Formulário: utiliza exclusivamente meUpdate */}
         <form className="space-y-6" onSubmit={handleSubmit}>
           <Panel title="Dados pessoais">
             <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5">
@@ -237,8 +315,15 @@ export default function SettingsUsuario() {
                   onChange={(e) =>
                     atualizarCampo("cep", e.target.value)
                   }
+                  onBlur={handleCepBlur}
                   disabled={loading}
                 />
+                {cepLoading && (
+                  <p className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <LoaderCircle className="size-3 animate-spin" />
+                    Consultando CEP...
+                  </p>
+                )}
               </Field>
 
               <Field label="Rua" className="sm:col-span-4">
@@ -299,9 +384,9 @@ export default function SettingsUsuario() {
             <Button
               type="submit"
               className="w-full sm:w-auto sm:px-8"
-              disabled={loading || !meUpdate}
+              disabled={loading || saving || !meUpdate}
             >
-              Salvar alterações
+              {saving ? "Salvando..." : "Salvar alterações"}
             </Button>
           </div>
         </form>

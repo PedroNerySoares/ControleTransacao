@@ -2,6 +2,7 @@
 
 
 import type { UsuarioDetails } from "@/app/types/usuario";
+import { BancoDTO } from "../types/banco";
 
 const BASEURL = "http://192.168.0.135:8080";
 
@@ -130,7 +131,7 @@ export async function putChangePassword(
   await ensureResponseOk(response);
   return await response.json();
 }
-export async function putChangeDatasUser(token: string, idUser: number, data: UsuarioDetails) {
+export async function putChangeDatasUser(token: string, data: UsuarioDetails) {
 
   const response = await fetch(`${BASEURL}/usuario/settingsUser`, {
     method: "PUT",
@@ -249,6 +250,19 @@ export async function getDashboard2(token: string) {
   return await response.json();
 
 }
+export async function getTop5Transacao(token: string) {
+  const response = await fetch(`${BASEURL}/transacao/topSuspeita`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  await ensureResponseOk(response);
+  return await response.json();
+
+}
+
 
 
 
@@ -305,4 +319,65 @@ export async function atualizarConfiguracoes(
   });
 
   await ensureResponseOk(response);
+}
+
+
+export async function getBancosParaAdministracao(
+  token: string,
+  params?: {
+    somenteAtivos?: boolean;
+    ispb?: string;
+    cnpj?: string;
+    numeroBanco?: string;
+  }
+): Promise<BancoDTO[]> {
+
+  const queryParams = new URLSearchParams();
+
+  if (params?.somenteAtivos !== undefined) {
+    queryParams.append("somenteAtivos", String(params.somenteAtivos));
+  }
+
+  if (params?.ispb) queryParams.append("ispb", params.ispb);
+  if (params?.cnpj) queryParams.append("cnpj", params.cnpj);
+  if (params?.numeroBanco) queryParams.append("numeroBanco", params.numeroBanco);
+
+  const response = await fetch(
+    `${BASEURL}/banco?${queryParams.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar bancos");
+  }
+
+  return response.json();
+}
+
+export async function atualizarStatusBanco(token: string, banco: Pick<BancoDTO, "numeroBanco" | "ISPB" | "cnpj">,
+  status: boolean,): Promise<BancoDTO> {
+  const identificador = [
+    banco.numeroBanco,
+    banco.ISPB,
+    banco.cnpj,
+  ].map(encodeURIComponent).join("/");
+  const response = await fetch(
+    `${BASEURL}/banco/${identificador}/status`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    },
+  );
+
+  await ensureResponseOk(response);
+  return response.json();
 }

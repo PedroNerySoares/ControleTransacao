@@ -13,12 +13,13 @@ export interface ITransacao {
 
 
 }
-export interface IMovimentacao {
-    banco: string
-    agencia: string
-    conta: string
-    valor: number
-    operacao: string
+export interface IMovimentacaoSuspeitas {
+ 
+    bancoOrigem: string,
+    agenciaOrigem?: string,
+    contaOrigem?: string,
+    operacao: string,
+    total: number
 }
 
 export interface IDashboard {
